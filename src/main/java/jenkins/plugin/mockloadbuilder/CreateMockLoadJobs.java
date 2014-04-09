@@ -83,6 +83,7 @@ public class CreateMockLoadJobs extends CLICommand {
         }
         if (countDuration > 0)
         stdout.println("Overall average duration: " + (sumDuration / countDuration) + "s");
+        stdout.println("Expected executor multiplier: " + (sumDuration / countDuration) / 60.0 + " x (number of builds scheduled per minute)");
         return 0;
     }
 }
