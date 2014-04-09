@@ -1,6 +1,7 @@
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.OutputStreamWriter;
 import java.io.PrintWriter;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
@@ -73,7 +74,7 @@ public class MockLoad {
         double testTime = (testCount + Math.sqrt(testCount) * entropy.nextGaussian()) / 10;
         FileOutputStream fos = new FileOutputStream("mock-junit.xml");
         try {
-            PrintWriter pw = new PrintWriter(fos);
+            PrintWriter pw = new PrintWriter(new OutputStreamWriter(fos, "UTF-8"));
             try {
                 System.out.println("[INFO]");
                 System.out.println("[INFO] --- maven-surefire-plugin:2.10:test (default-test) @ mock-load ---");
@@ -215,7 +216,9 @@ public class MockLoad {
         for (File f : new File(".").listFiles()) {
             String name = f.getName();
             if (name.startsWith("mock-artifact-") && name.endsWith(".txt")) {
-                f.delete();
+                if (!f.delete()) {
+                    System.out.println("[WARNING] Could not delete " + f.getAbsolutePath());
+                }
             }
         }
     }

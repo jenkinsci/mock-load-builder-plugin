@@ -1,6 +1,7 @@
 package jenkins.plugin.mockloadbuilder;
 
 import hudson.Extension;
+import hudson.FilePath;
 import hudson.Launcher;
 import hudson.model.AbstractBuild;
 import hudson.model.AbstractProject;
@@ -34,8 +35,10 @@ public class MockLoadBuilder extends Builder {
     public boolean perform(AbstractBuild<?, ?> build, Launcher launcher, BuildListener listener)
             throws InterruptedException, IOException {
         InputStream is = getClass().getResourceAsStream("/MockLoad.class");
+        FilePath workspace = build.getWorkspace();
+        assert workspace != null;
         try {
-            OutputStream os = build.getWorkspace().child("MockLoad.class").write();
+            OutputStream os = workspace.child("MockLoad.class").write();
             try {
                 IOUtils.copy(is, os);
             } finally {
@@ -44,7 +47,7 @@ public class MockLoadBuilder extends Builder {
         } finally {
             IOUtils.closeQuietly(is);
         }
-        launcher.launch().pwd(build.getWorkspace()).cmds("java", "MockLoad", Long.toString(averageDuration))
+        launcher.launch().pwd(workspace).cmds("java", "MockLoad", Long.toString(averageDuration))
                 .stdout(listener)
                 .start()
                 .join();
