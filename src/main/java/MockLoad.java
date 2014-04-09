@@ -173,13 +173,13 @@ public class MockLoad {
                 System.out.println(
                         "Tests run: " + totalCount + ", Failures: " + totalFailures + ", Errors: " + totalErrors
                                 + ", Skipped: " + totalSkipped + ", Time elapsed: " + totalDuration + " sec");
+                return totalErrors == 0 && totalFailures == 0;
             } finally {
                 pw.close();
             }
         } finally {
             fos.close();
         }
-        return failCount == 0 && errorCount == 0;
     }
 
     private static void doWork(Random entropy, long duration) throws NoSuchAlgorithmException, InterruptedException {
