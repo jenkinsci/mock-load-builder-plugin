@@ -28,7 +28,7 @@ public class CreateMockLoadJobs extends CLICommand {
     @Argument(index = 0, metaVar = "COUNT", usage = "Number of jobs to create", required = true)
     public Integer count;
 
-    @Argument(index = 1, metaVar = "DURATION", usage = "Average Build Duration", required = false)
+    @Argument(index = 1, metaVar = "DURATION", usage = "Average build duration, -1 will give a typical random duration to each job", required = false)
     public Long averageDuration;
 
     @Argument(index = 2, metaVar = "FOLDER", usage = "Where to create the jobs", required = false)
@@ -74,6 +74,7 @@ public class CreateMockLoadJobs extends CLICommand {
             project.getPublishersList().add(new ArtifactArchiver("mock-artifact-*.txt", "", false));
             project.getPublishersList().add(new Fingerprinter("", true));
             project.getPublishersList().add(new JUnitResultArchiver("mock-junit.xml", false, null));
+            project.setAssignedLabel(null);
             project.save();
         }
         return 0;

@@ -66,6 +66,7 @@ public class CreateMockLoadJob extends CLICommand {
         project.getPublishersList().add(new ArtifactArchiver("mock-artifact-*.txt", "", false));
         project.getPublishersList().add(new Fingerprinter("", true));
         project.getPublishersList().add(new JUnitResultArchiver("mock-junit.xml", false, null));
+        project.setAssignedLabel(null);
         project.save();
         return 0;
     }
