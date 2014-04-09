@@ -54,6 +54,8 @@ public class CreateMockLoadJobs extends CLICommand {
 
 
         Random entropy = new Random();
+        long sumDuration = 0;
+        int countDuration = 0;
         for (int n = 0; n < count; n++) {
             String name = "mock-load-job-" + StringUtils.leftPad(Integer.toString(n+1), 5, '0');
             if (ig.getItem(name) != null) {
@@ -67,7 +69,7 @@ public class CreateMockLoadJobs extends CLICommand {
                                     true);
             project.setBuildDiscarder(new LogRotator(30, 100, 10, 33));
             long duration = averageDuration == null || averageDuration < 0
-                    ? (long) (60 * Math.exp(entropy.nextGaussian()))
+                    ? (long) (60 * Math.exp(entropy.nextGaussian()) / 1.649) // 1.649 normalizes the expected mean back to 1
                     : averageDuration;
             project.getBuildersList().add(new MockLoadBuilder(duration));
             project.getPublishersList().add(new ArtifactArchiver("mock-artifact-*.txt", "", false));
@@ -76,7 +78,11 @@ public class CreateMockLoadJobs extends CLICommand {
             project.setAssignedLabel(null);
             stdout.println("Created " + name + " with average duration " + duration + "s");
             project.save();
+            sumDuration+=duration;
+            countDuration++;
         }
+        if (countDuration > 0)
+        stdout.println("Overall average duration: " + (sumDuration / countDuration) + "s");
         return 0;
     }
 }
