@@ -23,7 +23,7 @@ import java.util.Random;
 public class CreateMockLoadJobs extends CLICommand {
     @Override
     public String getShortDescription() {
-        return "Creates a job that generates a mock load";
+        return "Creates a set of jobs that generate a mock load";
     }
 
     @Argument(index = 0, metaVar = "COUNT", usage = "Number of jobs to create", required = true)
