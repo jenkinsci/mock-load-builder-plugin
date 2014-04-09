@@ -55,7 +55,7 @@ public class CreateMockLoadJobs extends CLICommand {
 
         Random entropy = new Random();
         for (int n = 0; n < count; n++) {
-            String name = "mock-load-job-" + StringUtils.leftPad(Integer.toString(n), 5, '0');
+            String name = "mock-load-job-" + StringUtils.leftPad(Integer.toString(n+1), 5, '0');
             if (ig.getItem(name) != null) {
                 continue;
             }
