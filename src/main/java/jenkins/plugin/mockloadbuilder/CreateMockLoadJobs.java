@@ -66,15 +66,15 @@ public class CreateMockLoadJobs extends CLICommand {
                                     name,
                                     true);
             project.setBuildDiscarder(new LogRotator(30, 100, 10, 33));
-            project.getBuildersList()
-                    .add(new MockLoadBuilder(averageDuration == null || averageDuration < 0
-                            ? Math.max(20,
-                            (long) (180 + (entropy.nextFloat() < 0.5 ? -120 : 360) * Math.abs(entropy.nextGaussian())))
-                            : averageDuration));
+            long duration = averageDuration == null || averageDuration < 0
+                    ? (long) (60 * Math.exp(entropy.nextGaussian()))
+                    : averageDuration;
+            project.getBuildersList().add(new MockLoadBuilder(duration));
             project.getPublishersList().add(new ArtifactArchiver("mock-artifact-*.txt", "", false));
             project.getPublishersList().add(new Fingerprinter("", true));
             project.getPublishersList().add(new JUnitResultArchiver("mock-junit.xml", false, null));
             project.setAssignedLabel(null);
+            stdout.println("Created " + name + " with average duration " + duration + "s");
             project.save();
         }
         return 0;
