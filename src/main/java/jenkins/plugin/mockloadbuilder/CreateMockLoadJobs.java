@@ -2,6 +2,7 @@ package jenkins.plugin.mockloadbuilder;
 
 import hudson.Extension;
 import hudson.cli.CLICommand;
+import hudson.model.Computer;
 import hudson.model.FreeStyleProject;
 import hudson.model.Item;
 import hudson.tasks.ArtifactArchiver;
@@ -52,7 +53,7 @@ public class CreateMockLoadJobs extends CLICommand {
             }
         }
 
-
+        if (averageDuration == null || averageDuration < 0) averageDuration = 60L;
         Random entropy = new Random();
         long sumDuration = 0;
         int countDuration = 0;
@@ -68,9 +69,8 @@ public class CreateMockLoadJobs extends CLICommand {
                                     name,
                                     true);
             project.setBuildDiscarder(new LogRotator(30, 100, 10, 33));
-            long duration = averageDuration == null || averageDuration < 0
-                    ? (long) (60 * Math.exp(entropy.nextGaussian()) / 1.649) // 1.649 normalizes the expected mean back to 1
-                    : averageDuration;
+            // 1.649 normalizes the expected mean back to 1
+            long duration =  (long) (averageDuration * Math.exp(entropy.nextGaussian()) / 1.649);
             project.getBuildersList().add(new MockLoadBuilder(duration));
             project.getPublishersList().add(new ArtifactArchiver("mock-artifact-*.txt", "", false));
             project.getPublishersList().add(new Fingerprinter("", true));
@@ -84,6 +84,12 @@ public class CreateMockLoadJobs extends CLICommand {
         if (countDuration > 0)
         stdout.println("Overall average duration: " + (sumDuration / countDuration) + "s");
         stdout.println("Expected executor multiplier: " + (sumDuration / countDuration) / 60.0 + " x (number of builds scheduled per minute)");
+        int executorCount = 0;
+        for (Computer c: Jenkins.getInstance().getComputers()) {
+            executorCount+=c.getNumExecutors();
+        }
+        stdout.println("Current ideal max build rate: " + Math.floor(executorCount / ((sumDuration / countDuration) / 60.0)));
+
         return 0;
     }
 }
