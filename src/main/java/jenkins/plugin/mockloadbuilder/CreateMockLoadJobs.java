@@ -83,12 +83,12 @@ public class CreateMockLoadJobs extends CLICommand {
         }
         if (countDuration > 0)
         stdout.println("Overall average duration: " + (sumDuration / countDuration) + "s");
-        stdout.println("Expected executor multiplier: " + (sumDuration / countDuration) / 60.0 + " x (number of builds scheduled per minute)");
+        stdout.println("Expected executor multiplier: " + (sumDuration / 60.0 / countDuration) + " x (number of builds scheduled per minute)");
         int executorCount = 0;
         for (Computer c: Jenkins.getInstance().getComputers()) {
             executorCount+=c.getNumExecutors();
         }
-        stdout.println("Current ideal max build rate: " + Math.floor(executorCount / ((sumDuration / countDuration) / 60.0)));
+        stdout.println("Current ideal max build rate: " + Math.floor(executorCount / (sumDuration / 60.0 / countDuration)));
 
         return 0;
     }
