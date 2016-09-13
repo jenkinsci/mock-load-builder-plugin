@@ -9,14 +9,14 @@ import jenkins.model.ModifiableTopLevelItemGroup;
 import org.kohsuke.args4j.Argument;
 import org.kohsuke.args4j.Option;
 
-@Extension
-public class CreateMockLoadJob extends CLICommand {
+@Extension(optional = true)
+public class CreateMockLoadMatrix extends CLICommand {
     @Option(name = "--fast-rotate", usage = "Enable fast rotation of builds")
     public boolean fastRotate;
 
     @Override
     public String getShortDescription() {
-        return "Creates a job that generates a mock load";
+        return "Creates a matrix project that generates a mock load";
     }
 
     @Argument(index = 0, metaVar = "NAME", usage = "Name of the job to create", required = true)
@@ -29,9 +29,12 @@ public class CreateMockLoadJob extends CLICommand {
         Jenkins jenkins = Jenkins.getActiveInstance();
         jenkins.checkPermission(Item.CREATE);
 
-        FreeStyleMockProjectFactory factory = ExtensionList.lookup(MockProjectFactory.class)
-                .get(FreeStyleMockProjectFactory.class);
-        assert factory != null;
+        MatrixMockProjectFactory factory = ExtensionList.lookup(MockProjectFactory.class)
+                .get(MatrixMockProjectFactory.class);
+        if (factory == null) {
+            stderr.println("Matrix plugin is not installed");
+            return -1;
+        }
         if (jenkins.getItemByFullName(name) != null) {
             stderr.println("Job '" + name + "' already exists");
             return -1;

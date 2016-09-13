@@ -3,20 +3,27 @@ package jenkins.plugin.mockloadbuilder;
 import hudson.Extension;
 import hudson.ExtensionList;
 import hudson.cli.CLICommand;
+import hudson.model.FreeStyleProject;
 import hudson.model.Item;
+import hudson.tasks.ArtifactArchiver;
+import hudson.tasks.Fingerprinter;
+import hudson.tasks.LogRotator;
+import hudson.tasks.junit.JUnitResultArchiver;
 import jenkins.model.Jenkins;
 import jenkins.model.ModifiableTopLevelItemGroup;
+import org.jenkinsci.plugins.workflow.cps.CpsFlowDefinition;
+import org.jenkinsci.plugins.workflow.job.WorkflowJob;
 import org.kohsuke.args4j.Argument;
 import org.kohsuke.args4j.Option;
 
-@Extension
-public class CreateMockLoadJob extends CLICommand {
+@Extension(optional = true)
+public class CreateMockLoadPipeline extends CLICommand {
     @Option(name = "--fast-rotate", usage = "Enable fast rotation of builds")
     public boolean fastRotate;
 
     @Override
     public String getShortDescription() {
-        return "Creates a job that generates a mock load";
+        return "Creates a pipeline that generates a mock load";
     }
 
     @Argument(index = 0, metaVar = "NAME", usage = "Name of the job to create", required = true)
@@ -29,9 +36,12 @@ public class CreateMockLoadJob extends CLICommand {
         Jenkins jenkins = Jenkins.getActiveInstance();
         jenkins.checkPermission(Item.CREATE);
 
-        FreeStyleMockProjectFactory factory = ExtensionList.lookup(MockProjectFactory.class)
-                .get(FreeStyleMockProjectFactory.class);
-        assert factory != null;
+        PipelineMockProjectFactory factory = ExtensionList.lookup(MockProjectFactory.class)
+                .get(PipelineMockProjectFactory.class);
+        if (factory == null) {
+            stderr.println("Pipeline plugin is not installed");
+            return -1;
+        }
         if (jenkins.getItemByFullName(name) != null) {
             stderr.println("Job '" + name + "' already exists");
             return -1;

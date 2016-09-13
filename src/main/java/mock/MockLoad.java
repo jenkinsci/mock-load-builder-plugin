@@ -1,7 +1,10 @@
+package mock;
+
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.OutputStreamWriter;
+import java.io.PrintStream;
 import java.io.PrintWriter;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
@@ -11,9 +14,9 @@ import java.util.Random;
 import java.util.concurrent.TimeUnit;
 
 public class MockLoad {
+
     public static void main(String... args)
             throws Exception {
-        Random entropy = new Random();
         long averageDuration;
         if (args.length > 0) {
             try {
@@ -24,44 +27,57 @@ public class MockLoad {
         } else {
             averageDuration = 60;
         }
-        long duration = averageDuration + (long) (Math.sqrt(averageDuration) * entropy.nextGaussian());
-        System.out.println("[INFO] Scanning for projects...");
-        System.out.println("[INFO] ------------------------------------------------------------------------");
-        System.out.println("[INFO] Reactor Build Order:");
-        System.out.println("[INFO]");
-        System.out.println("[INFO] mock-load");
-        System.out.println("[INFO]");
-        System.out.println("[INFO] ------------------------------------------------------------------------");
-        System.out.println("[INFO] Building mock-load 1.0-SNAPSHOT");
-        System.out.println("[INFO] ------------------------------------------------------------------------");
-        doWork(entropy, duration);
-        String result;
-        if (runTests(entropy)) {
-            result = "SUCCESS";
-            createArtifacts(entropy);
-        } else {
-            result = "FAILURE";
-        }
-        System.out.println("[INFO] ------------------------------------------------------------------------");
-        System.out.println("[INFO] Reactor Summary:");
-        System.out.println("[INFO]");
-        System.out.println(
-                "[INFO] mock-load ......................................... " + result + " [" + duration + "s]");
-        System.out.println("[INFO]");
-        System.out.println("[INFO] ------------------------------------------------------------------------");
-        System.out.println("[INFO] BUILD " + result);
-        System.out.println("[INFO] ------------------------------------------------------------------------");
-        System.out.println("[INFO] Total time: " + duration + "s");
-        System.out.println("[INFO] Finished at: " + new Date());
-        System.out.println("[INFO] Final Memory: " + (Runtime.getRuntime().totalMemory() / 1024 / 1024) + "M/" + (
-                Runtime.getRuntime().maxMemory() / 1024 / 1024) + "M");
-        System.out.println("[INFO] ------------------------------------------------------------------------");
-        if (result.equals("FAILURE")) {
+
+        if (!build(new File("."), averageDuration, System.out)) {
             System.exit(1);
         }
     }
 
-    private static boolean runTests(Random entropy) throws IOException {
+    public static boolean build(File baseDir, long averageDuration, PrintStream out) throws IOException, InterruptedException {
+        Random entropy = new Random();
+
+        long duration = averageDuration + (long) (Math.sqrt(averageDuration) * entropy.nextGaussian());
+
+        return doBuild(baseDir, entropy, duration, out);
+    }
+
+    private static boolean doBuild(File baseDir, Random entropy, long duration, PrintStream out)
+            throws InterruptedException, IOException {
+        out.println("[INFO] Scanning for projects...");
+        out.println("[INFO] ------------------------------------------------------------------------");
+        out.println("[INFO] Reactor Build Order:");
+        out.println("[INFO]");
+        out.println("[INFO] mock-load");
+        out.println("[INFO]");
+        out.println("[INFO] ------------------------------------------------------------------------");
+        out.println("[INFO] Building mock-load 1.0-SNAPSHOT");
+        out.println("[INFO] ------------------------------------------------------------------------");
+        doWork(entropy, duration, out, baseDir);
+        String result;
+        if (runTests(baseDir, entropy, out)) {
+            result = "SUCCESS";
+            createArtifacts(baseDir, entropy, out);
+        } else {
+            result = "FAILURE";
+        }
+        out.println("[INFO] ------------------------------------------------------------------------");
+        out.println("[INFO] Reactor Summary:");
+        out.println("[INFO]");
+        out.println(
+                "[INFO] mock-load ......................................... " + result + " [" + duration + "s]");
+        out.println("[INFO]");
+        out.println("[INFO] ------------------------------------------------------------------------");
+        out.println("[INFO] BUILD " + result);
+        out.println("[INFO] ------------------------------------------------------------------------");
+        out.println("[INFO] Total time: " + duration + "s");
+        out.println("[INFO] Finished at: " + new Date());
+        out.println("[INFO] Final Memory: " + (Runtime.getRuntime().totalMemory() / 1024 / 1024) + "M/" + (
+                Runtime.getRuntime().maxMemory() / 1024 / 1024) + "M");
+        out.println("[INFO] ------------------------------------------------------------------------");
+        return "SUCCESS".equals(result);
+    }
+
+    private static boolean runTests(File baseDir, Random entropy, PrintStream out) throws IOException {
         int availTests = 0;
         for (String testClassName : testClassNames) {
             availTests += 5 + testClassName.length() % testMethodNames.length;
@@ -72,18 +88,18 @@ public class MockLoad {
         int errorCount = unstable ? entropy.nextInt(Math.min(testCount - failCount, 100)) : 0;
         int skipCount = entropy.nextInt(Math.min(testCount - failCount - errorCount, 100));
         double testTime = (testCount + Math.sqrt(testCount) * entropy.nextGaussian()) / 10;
-        FileOutputStream fos = new FileOutputStream("mock-junit.xml");
+        FileOutputStream fos = new FileOutputStream(new File(baseDir, "mock-junit.xml"));
         try {
             PrintWriter pw = new PrintWriter(new OutputStreamWriter(fos, "UTF-8"));
             try {
-                System.out.println("[INFO]");
-                System.out.println("[INFO] --- maven-surefire-plugin:2.10:test (default-test) @ mock-load ---");
-                System.out.println("[INFO] Surefire report directory: " + new File(".").getAbsolutePath());
-                System.out.println();
-                System.out.println("-------------------------------------------------------");
-                System.out.println(" T E S T S");
-                System.out.println("-------------------------------------------------------");
-                System.out.println();
+                out.println("[INFO]");
+                out.println("[INFO] --- maven-surefire-plugin:2.10:test (default-test) @ mock-load ---");
+                out.println("[INFO] Surefire report directory: " + baseDir.getAbsolutePath());
+                out.println();
+                out.println("-------------------------------------------------------");
+                out.println(" T E S T S");
+                out.println("-------------------------------------------------------");
+                out.println();
 
                 int totalCount = 0;
                 int totalFailures = 0;
@@ -97,7 +113,7 @@ public class MockLoad {
                 int testClassIndex = 0;
                 int testNameIndex = 0;
                 String testClassName = testClassNames[testClassIndex];
-                System.out.println("Running " + testClassName);
+                out.println("Running " + testClassName);
                 int runCount = 0;
                 int runFailures = 0;
                 int runErrors = 0;
@@ -108,7 +124,7 @@ public class MockLoad {
                     if (testNameIndex < 5 + testClassName.length() % testMethodNames.length) {
                         testName = testMethodNames[testNameIndex++];
                     } else {
-                        System.out.println(
+                        out.println(
                                 "Tests run: " + runCount + ", Failures: " + runFailures + ", Errors: " + runErrors
                                         + ", Skipped: " + runSkipped + ", Time elapsed: " + runDuration + " sec");
                         totalCount += runCount;
@@ -125,7 +141,7 @@ public class MockLoad {
                         testClassName = testClassNames[testClassIndex];
                         testName = testMethodNames[0];
                         testNameIndex = 1;
-                        System.out.println("Running " + testClassName);
+                        out.println("Running " + testClassName);
                     }
 
                     double testDuration =
@@ -161,17 +177,17 @@ public class MockLoad {
                     pw.println("  </testcase>");
                 }
                 pw.println("</testsuite>");
-                System.out.println("Tests run: " + runCount + ", Failures: " + runFailures + ", Errors: " + runErrors
+                out.println("Tests run: " + runCount + ", Failures: " + runFailures + ", Errors: " + runErrors
                         + ", Skipped: " + runSkipped + ", Time elapsed: " + runDuration + " sec");
-                System.out.println();
-                System.out.println("Results :");
-                System.out.println();
+                out.println();
+                out.println("Results :");
+                out.println();
                 totalCount += runCount;
                 totalFailures += runFailures;
                 totalErrors += runErrors;
                 totalSkipped += runSkipped;
                 totalDuration += runDuration;
-                System.out.println(
+                out.println(
                         "Tests run: " + totalCount + ", Failures: " + totalFailures + ", Errors: " + totalErrors
                                 + ", Skipped: " + totalSkipped + ", Time elapsed: " + totalDuration + " sec");
                 return totalErrors == 0 && totalFailures == 0;
@@ -183,49 +199,60 @@ public class MockLoad {
         }
     }
 
-    private static void doWork(Random entropy, long duration) throws NoSuchAlgorithmException, InterruptedException {
-        System.out.println("[INFO]");
-        System.out.println("[INFO] --- maven-compiler-plugin:2.3.2:compile (default-compile) @ mock-load ---");
+    private static void doWork(Random entropy, long duration, PrintStream out, File baseDir) throws InterruptedException {
+        out.println("[INFO]");
+        out.println("[INFO] --- maven-compiler-plugin:2.3.2:compile (default-compile) @ mock-load ---");
 
         long endTime = System.currentTimeMillis() + TimeUnit.SECONDS.toMillis(duration);
-        MessageDigest sha1 = MessageDigest.getInstance("SHA-1");
+        MessageDigest sha1 = null;
+        try {
+            sha1 = MessageDigest.getInstance("SHA-1");
+        } catch (NoSuchAlgorithmException e) {
+            throw new IllegalStateException("To be a JVM you must support SHA-1", e);
+        }
         byte[] buffer = new byte[1024];
         entropy.nextBytes(buffer);
         while (System.currentTimeMillis() < endTime) {
-            Thread.sleep(entropy.nextInt(100));
+            double kbPerMilli = (1500 + entropy.nextInt(1000)) / 10000.0;
+            Thread.sleep(entropy.nextInt(1000));
             int size = entropy.nextInt(2048);
             long t = System.currentTimeMillis();
-            System.out.println(
+            out.println(
                     "Downloading: http://repo.maven.apache.org/maven2/org/jenkinsci/plugins/mock-load/foobar/" + t
                             + "/foobar-" + t + ".jar");
             for (int i = size; i > 0; i--) {
                 if (i % 64 == 0) {
-                    System.out.print("\r" + (size - i) + "/" + size + " KB");
-                    System.out.flush();
+                    out.print("\r" + (size - i) + "/" + size + " KB");
+                    out.flush();
                 }
                 int j = entropy.nextInt(buffer.length);
                 buffer[j] = (byte) entropy.nextInt();
                 sha1.update(buffer);
+                long delay = t + (long)((size - i) * kbPerMilli) - System.currentTimeMillis();
+                if (delay > 0) Thread.sleep(delay);
+
             }
-            System.out.println();
-            System.out.println(
-                    "Downloaded: http://repo.maven.apache.org/maven2/org/jenkinsci/plugins/mock-load/foobar/" + t
-                            + "/foobar-" + t + ".jar (" + size + " KB at 211.3 KB/sec");
-            System.out.println("[INFO] Random hash: " + toHexString(sha1.digest()));
+            out.println();
+            out.printf(
+                    "Downloaded: http://repo.maven.apache.org/maven2/org/jenkinsci/plugins/mock-load/foobar/%s/foobar-%s.jar (%d KB at %.1f KB/sec)%n", t, t, size, kbPerMilli*1000.0);
+            out.println("[INFO] Random hash: " + toHexString(sha1.digest()));
         }
-        for (File f : new File(".").listFiles()) {
-            String name = f.getName();
-            if (name.startsWith("mock-artifact-") && name.endsWith(".txt")) {
-                if (!f.delete()) {
-                    System.out.println("[WARNING] Could not delete " + f.getAbsolutePath());
+        File[] files = baseDir.listFiles();
+        if (files != null) {
+            for (File f : files) {
+                String name = f.getName();
+                if (name.startsWith("mock-artifact-") && name.endsWith(".txt")) {
+                    if (!f.delete()) {
+                        out.println("[WARNING] Could not delete " + f.getAbsolutePath());
+                    }
                 }
             }
         }
     }
 
-    private static void createArtifacts(Random entropy) throws IOException {
-        System.out.println("[INFO] --- maven-jar-plugin:2.3.2:jar (default-jar) @ mock-load ---");
-        System.out.println("[INFO]");
+    private static void createArtifacts(File baseDir, Random entropy, PrintStream out) throws IOException {
+        out.println("[INFO] --- maven-jar-plugin:2.3.2:jar (default-jar) @ mock-load ---");
+        out.println("[INFO]");
         byte[] buffer = new byte[1024];
         int artifactCount = 2 + entropy.nextInt(25);
         for (int i = 0; i < artifactCount; i++) {
@@ -234,7 +261,7 @@ public class MockLoad {
             for (byte b : ("Artifact " + i + "\n" + new Date().toString()).getBytes("UTF-8")) {
                 buffer[index++] = b;
             }
-            File artifact = new File("mock-artifact-" + i + ".txt");
+            File artifact = new File(baseDir, "mock-artifact-" + i + ".txt");
             System.err.println("Creating " + artifact.getAbsolutePath());
             int size = (1 << entropy.nextInt(20)) + entropy.nextInt(65536);
             FileOutputStream fos = new FileOutputStream(artifact);

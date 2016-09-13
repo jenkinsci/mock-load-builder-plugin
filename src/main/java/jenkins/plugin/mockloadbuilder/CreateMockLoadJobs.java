@@ -1,6 +1,7 @@
 package jenkins.plugin.mockloadbuilder;
 
 import hudson.Extension;
+import hudson.ExtensionList;
 import hudson.cli.CLICommand;
 import hudson.model.Computer;
 import hudson.model.FreeStyleProject;
@@ -9,22 +10,26 @@ import hudson.tasks.ArtifactArchiver;
 import hudson.tasks.Fingerprinter;
 import hudson.tasks.LogRotator;
 import hudson.tasks.junit.JUnitResultArchiver;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
 import jenkins.model.Jenkins;
 import jenkins.model.ModifiableTopLevelItemGroup;
 import org.apache.commons.lang.StringUtils;
 import org.kohsuke.args4j.Argument;
 
 import java.util.Random;
+import org.kohsuke.args4j.Option;
 
-/**
- * @author Stephen Connolly
- */
 @Extension
 public class CreateMockLoadJobs extends CLICommand {
     @Override
     public String getShortDescription() {
         return "Creates a set of jobs that generate a mock load";
     }
+
+    @Option(name = "--fast-rotate", usage = "Enable fast rotation of builds")
+    public boolean fastRotate;
 
     @Argument(index = 0, metaVar = "COUNT", usage = "Number of jobs to create", required = true)
     public Integer count;
@@ -36,12 +41,12 @@ public class CreateMockLoadJobs extends CLICommand {
     public String group;
 
     protected int run() throws Exception {
-        Jenkins h = Jenkins.getInstance();
-        h.checkPermission(Item.CREATE);
+        Jenkins jenkins = Jenkins.getActiveInstance();
+        jenkins.checkPermission(Item.CREATE);
 
-        ModifiableTopLevelItemGroup ig = h;
+        ModifiableTopLevelItemGroup ig = jenkins;
         if (StringUtils.isNotBlank(group)) {
-            Item item = h.getItemByFullName(group);
+            Item item = jenkins.getItemByFullName(group);
             if (item == null) {
                 throw new IllegalArgumentException("Unknown ItemGroup " + group);
             }
@@ -53,42 +58,50 @@ public class CreateMockLoadJobs extends CLICommand {
             }
         }
 
-        if (averageDuration == null || averageDuration < 0) averageDuration = 60L;
+        List<MockProjectFactory> factories = new ArrayList<>(100);
+        for (MockProjectFactory f : ExtensionList.lookup(MockProjectFactory.class)) {
+            for (int i = f.getFrequency(); i > 0; i--) {
+                factories.add(f);
+            }
+        }
         Random entropy = new Random();
+        Collections.shuffle(factories, entropy);
+
+        if (averageDuration == null || averageDuration < 0) averageDuration = 60L;
         long sumDuration = 0;
         int countDuration = 0;
+        int index = 0;
+        double multiplier = 1;
         for (int n = 0; n < count; n++) {
             String name = "mock-load-job-" + StringUtils.leftPad(Integer.toString(n+1), 5, '0');
             if (ig.getItem(name) != null) {
                 continue;
             }
             Jenkins.checkGoodName(name);
-            FreeStyleProject project =
-                    (FreeStyleProject) ig
-                            .createProject(Jenkins.getInstance().getDescriptorByType(FreeStyleProject.DescriptorImpl.class),
-                                    name,
-                                    true);
-            project.setBuildDiscarder(new LogRotator(30, 100, 10, 33));
+
+            if (index >= factories.size()) {
+                index = 0;
+            }
+            MockProjectFactory factory = factories.get(index++);
+
             // 1.649 normalizes the expected mean back to 1
-            long duration =  (long) (averageDuration * Math.exp(entropy.nextGaussian()) / 1.649);
-            project.getBuildersList().add(new MockLoadBuilder(duration));
-            project.getPublishersList().add(new ArtifactArchiver("mock-artifact-*.txt", "", false));
-            project.getPublishersList().add(new Fingerprinter("", true));
-            project.getPublishersList().add(new JUnitResultArchiver("mock-junit.xml", false, null));
-            project.setAssignedLabel(null);
+            long duration = (long) (averageDuration * Math.exp(entropy.nextGaussian()) / 1.649);
+            factory.create(ig, name, duration, fastRotate);
             stdout.println("Created " + name + " with average duration " + duration + "s");
-            project.save();
-            sumDuration+=duration;
-            countDuration++;
+            sumDuration+=duration*factory.getMultiplier();
+            countDuration+=factory.getMultiplier();
+            multiplier = (multiplier * n + factory.getMultiplier()) / (n + 1.0);
         }
         if (countDuration > 0)
-        stdout.println("Overall average duration: " + (sumDuration / countDuration) + "s");
-        stdout.println("Expected executor multiplier: " + (sumDuration / 60.0 / countDuration) + " x (number of builds scheduled per minute)");
+        stdout.printf("Overall average duration: %ds%n",(sumDuration / countDuration));
+        stdout.printf("Expected executor multiplier: %.1f x (number of builds scheduled per minute)%n",
+                (sumDuration / 60.0 / countDuration * multiplier));
         int executorCount = 0;
-        for (Computer c: Jenkins.getInstance().getComputers()) {
+        for (Computer c: jenkins.getComputers()) {
             executorCount+=c.getNumExecutors();
         }
-        stdout.println("Current ideal max build rate: " + Math.floor(executorCount / (sumDuration / 60.0 / countDuration)));
+        stdout.printf("Current ideal max build rate: %.1f builds per minute%n",
+                Math.floor(executorCount / (sumDuration / 60.0 / countDuration * multiplier)));
 
         return 0;
     }
