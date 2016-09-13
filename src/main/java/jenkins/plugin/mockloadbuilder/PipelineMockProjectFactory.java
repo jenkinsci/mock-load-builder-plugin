@@ -25,8 +25,8 @@ public class PipelineMockProjectFactory extends MockProjectFactory {
                 "node {%n"
                         + "  mockLoad %d%n"
                         + "  archive 'mock-artifact-*.txt'%n"
-                        // todo fingerprint
-                        // todo junit results
+                        + "  step([$class: 'Fingerprinter', testResults: 'mock-artifact-*.txt'])%n"
+                        + "  step([$class: 'JUnitResultArchiver', testResults: 'mock-junit.xml'])%n"
                         + "}",
                 averageDuration == null || averageDuration < 0 ? Long.valueOf(60L) : averageDuration
         )));
