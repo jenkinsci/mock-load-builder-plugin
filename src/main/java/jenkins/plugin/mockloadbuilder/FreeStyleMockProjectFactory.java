@@ -15,7 +15,7 @@ import jenkins.model.ModifiableTopLevelItemGroup;
 public class FreeStyleMockProjectFactory extends MockProjectFactory {
     @Override
     public int getFrequency() {
-        return 70;
+        return 75;
     }
 
     @Override
