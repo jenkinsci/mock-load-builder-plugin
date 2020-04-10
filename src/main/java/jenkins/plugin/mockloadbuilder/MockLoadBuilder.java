@@ -1,26 +1,27 @@
 package jenkins.plugin.mockloadbuilder;
 
+import hudson.model.Run;
 import hudson.model.TaskListener;
 import hudson.remoting.VirtualChannel;
 import java.io.File;
 import jenkins.MasterToSlaveFileCallable;
+import jenkins.tasks.SimpleBuildStep;
 import mock.MockLoad;
 import hudson.Extension;
 import hudson.FilePath;
 import hudson.Launcher;
-import hudson.model.AbstractBuild;
 import hudson.model.AbstractProject;
-import hudson.model.BuildListener;
 import hudson.tasks.BuildStepDescriptor;
 import hudson.tasks.Builder;
 import org.apache.commons.io.IOUtils;
 import org.kohsuke.stapler.DataBoundConstructor;
 
+import javax.annotation.Nonnull;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 
-public class MockLoadBuilder extends Builder {
+public class MockLoadBuilder extends Builder implements SimpleBuildStep {
 
     private final long averageDuration;
 
@@ -34,32 +35,19 @@ public class MockLoadBuilder extends Builder {
     }
 
     @Override
-    public boolean perform(AbstractBuild<?, ?> build, Launcher launcher, BuildListener listener)
-            throws InterruptedException, IOException {
+    public void perform(@Nonnull Run<?, ?> run, @Nonnull FilePath workspace, @Nonnull Launcher launcher, @Nonnull TaskListener listener) throws InterruptedException, IOException {
         if (MockProjectFactory.mode) {
-            FilePath workspace = build.getWorkspace();
-            assert workspace != null;
-            launcher.getChannel().call(workspace.asCallableWith(new NoFork(averageDuration, listener)));
+            workspace.act(workspace.asCallableWith(new NoFork(averageDuration, listener)));
         } else {
-            InputStream is = getClass().getResourceAsStream("/mock/MockLoad.class");
-            FilePath workspace = build.getWorkspace();
-            assert workspace != null;
-            try {
-                OutputStream os = workspace.child("mock/MockLoad.class").write();
-                try {
-                    IOUtils.copy(is, os);
-                } finally {
-                    IOUtils.closeQuietly(os);
-                }
-            } finally {
-                IOUtils.closeQuietly(is);
+            try (InputStream is = getClass().getResourceAsStream("/mock/MockLoad.class");
+                 OutputStream os = workspace.child("mock/MockLoad.class").write()) {
+                IOUtils.copy(is, os);
             }
             launcher.launch().pwd(workspace).cmds("java", "mock.MockLoad", Long.toString(averageDuration))
                     .stdout(listener)
                     .start()
                     .join();
         }
-        return true;
     }
 
     @Extension
