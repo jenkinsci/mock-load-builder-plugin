@@ -6,7 +6,7 @@ import hudson.Extension;
 public class CreateMockLoadJob extends AbstractCreateMockLoad {
     @Override
     public String getShortDescription() {
-        return "Creates a freestyle sjob that generates a mock load";
+        return "Creates a freestyle job that generates a mock load";
     }
 
     @Override
