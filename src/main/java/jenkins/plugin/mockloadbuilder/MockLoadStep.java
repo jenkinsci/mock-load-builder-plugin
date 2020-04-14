@@ -1,21 +1,23 @@
 package jenkins.plugin.mockloadbuilder;
 
-import com.google.inject.Inject;
+import com.google.common.collect.ImmutableSet;
 import hudson.Extension;
 import hudson.FilePath;
 import hudson.Launcher;
 import hudson.model.TaskListener;
 import org.apache.commons.io.IOUtils;
-import org.jenkinsci.plugins.workflow.steps.AbstractStepDescriptorImpl;
-import org.jenkinsci.plugins.workflow.steps.AbstractStepImpl;
-import org.jenkinsci.plugins.workflow.steps.AbstractSynchronousNonBlockingStepExecution;
-import org.jenkinsci.plugins.workflow.steps.StepContextParameter;
+import org.jenkinsci.plugins.workflow.steps.Step;
+import org.jenkinsci.plugins.workflow.steps.StepContext;
+import org.jenkinsci.plugins.workflow.steps.StepDescriptor;
+import org.jenkinsci.plugins.workflow.steps.StepExecution;
+import org.jenkinsci.plugins.workflow.steps.SynchronousNonBlockingStepExecution;
 import org.kohsuke.stapler.DataBoundConstructor;
 
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.util.Set;
 
-public class MockLoadStep extends AbstractStepImpl {
+public class MockLoadStep extends Step {
 
     private final long averageDuration;
 
@@ -28,11 +30,15 @@ public class MockLoadStep extends AbstractStepImpl {
         return averageDuration;
     }
 
+    @Override public StepExecution start(StepContext context) {
+        return new Execution(this, context);
+    }
 
     @Extension(optional = true)
-    public static class DescriptorImpl extends AbstractStepDescriptorImpl {
-        public DescriptorImpl() {
-            super(Execution.class);
+    public static class DescriptorImpl extends StepDescriptor {
+        @Override
+        public Set<? extends Class<?>> getRequiredContext() {
+            return ImmutableSet.of(FilePath.class, Launcher.class, TaskListener.class);
         }
 
         @Override
@@ -49,34 +55,21 @@ public class MockLoadStep extends AbstractStepImpl {
     /**
      * @author Stephen Connolly
      */
-    public static class Execution extends AbstractSynchronousNonBlockingStepExecution<Void> {
-        /**
-         * Standardize serialization.
-         */
+    public static class Execution extends SynchronousNonBlockingStepExecution<Void> {
         private static final long serialVersionUID = 1L;
-        /**
-         * The listener.
-         */
-        @StepContextParameter
-        private transient TaskListener listener;
-        /**
-         * The location to perform the mock build.
-         */
-        @StepContextParameter
-        private transient FilePath ws;
-        /**
-         * The launcher to use to perform the mock build
-         */
-        @StepContextParameter
-        private transient Launcher launcher;
-        /**
-         * The step configuration.
-         */
-        @Inject
-        private transient MockLoadStep step;
+
+        private transient final MockLoadStep step;
+
+        Execution(MockLoadStep step, StepContext context) {
+            super(context);
+            this.step = step;
+        }
 
         @Override
         protected Void run() throws Exception {
+            FilePath ws = getContext().get(FilePath.class);
+            Launcher launcher = getContext().get(Launcher.class);
+            TaskListener listener = getContext().get(TaskListener.class);
             if (MockProjectFactory.mode) {
                 ws.act(ws.asCallableWith(new MockLoadBuilder.NoFork(step.getAverageDuration(), listener)));
             } else {

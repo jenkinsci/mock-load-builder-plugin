@@ -3,34 +3,40 @@ package jenkins.plugin.mockloadbuilder;
 import hudson.Extension;
 import hudson.model.Job;
 import hudson.tasks.LogRotator;
-import java.io.IOException;
 import jenkins.model.Jenkins;
 import jenkins.model.ModifiableTopLevelItemGroup;
 import org.jenkinsci.plugins.workflow.cps.CpsFlowDefinition;
 import org.jenkinsci.plugins.workflow.job.WorkflowJob;
 
+import java.io.IOException;
+
 @Extension(optional = true)
 public class PipelineMockProjectFactory extends MockProjectFactory {
     @Override
     public int getFrequency() {
-        return 5;
+        return Config.get().getPipelineFrequency();
     }
 
     @Override
     public Job create(ModifiableTopLevelItemGroup ig, String name, Long averageDuration, boolean fastRotate) throws IOException {
         WorkflowJob project = (WorkflowJob) ig.createProject(
-                Jenkins.getActiveInstance().getDescriptorByType(WorkflowJob.DescriptorImpl.class), name, true);
-        project.setBuildDiscarder(fastRotate ? new LogRotator(-1, 5, -1, 1) : new LogRotator(30, 100, 10, 33));
+                Jenkins.get().getDescriptorByType(WorkflowJob.DescriptorImpl.class), name, true);
+        project.setBuildDiscarder(createBuildDiscarder(fastRotate));
         project.setDefinition(new CpsFlowDefinition(String.format(
                 "node {%n"
                         + "  mockLoad %d%n"
-                        + "  archive 'mock-artifact-*.txt'%n"
-                        + "  step([$class: 'Fingerprinter', testResults: 'mock-artifact-*.txt'])%n"
-                        + "  step([$class: 'JUnitResultArchiver', testResults: 'mock-junit.xml'])%n"
+                        + "  archiveArtifacts allowEmptyArchive: true, artifacts: 'mock-artifact-*.txt'%n"
+                        + "  fingerprint 'mock-artifact-*.txt'%n"
+                        + "  junit 'mock-junit.xml'%n"
                         + "}",
                 averageDuration == null || averageDuration < 0 ? Long.valueOf(60L) : averageDuration
-        )));
+        ), true));
         project.save();
         return project;
+    }
+
+    @Override
+    public String getName() {
+        return "Pipeline";
     }
 }

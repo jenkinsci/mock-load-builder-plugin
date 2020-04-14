@@ -1,0 +1,17 @@
+<?jelly escape-by-default='true'?>
+<j:jelly xmlns:j="jelly:core" xmlns:st="jelly:stapler" xmlns:d="jelly:define" xmlns:l="/lib/layout" xmlns:t="/lib/hudson" xmlns:f="/lib/form" xmlns:local="local">
+  <f:section title="${descriptor.displayName}">
+    <f:entry field="freestyleFrequency" title="${%Freestyle frequency}">
+      <f:number/>
+    </f:entry>
+    <f:entry field="pipelineFrequency" title="${%Pipeline frequency}">
+      <f:number/>
+    </f:entry>
+    <f:entry field="matrixFrequency" title="${%Matrix frequency}">
+      <f:number/>
+    </f:entry>
+    <f:entry field="matrixMultiplier" title="${%Matrix multiplier}">
+      <f:number/>
+    </f:entry>
+  </f:section>
+</j:jelly>

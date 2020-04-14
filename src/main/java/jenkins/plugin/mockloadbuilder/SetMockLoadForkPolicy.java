@@ -17,7 +17,7 @@ public class SetMockLoadForkPolicy extends CLICommand {
     public String mode;
 
     protected int run() throws Exception {
-        Jenkins jenkins = Jenkins.getActiveInstance();
+        Jenkins jenkins = Jenkins.get();
         jenkins.checkPermission(Jenkins.ADMINISTER);
 
         MockProjectFactory.mode = "nofork".equalsIgnoreCase(mode);
