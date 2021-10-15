@@ -15,7 +15,7 @@ public abstract class AbstractCreateMockLoad extends CLICommand {
     @Argument(index = 0, metaVar = "NAME", usage = "Name of the job to create", required = true)
     public String name;
 
-    @Argument(index = 1, metaVar = "DURATION", usage = "Average Build Duration")
+    @Argument(index = 1, metaVar = "DURATION", usage = "Average build duration (seconds)")
     public Long averageDuration;
 
     protected final int run() throws Exception {
