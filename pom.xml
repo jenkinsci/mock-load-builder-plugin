@@ -29,11 +29,12 @@
   <parent>
     <groupId>org.jenkins-ci.plugins</groupId>
     <artifactId>plugin</artifactId>
-    <version>4.0-beta-6</version>
+    <version>4.29</version>
+    <relativePath/>
   </parent>
 
   <artifactId>mock-load-builder</artifactId>
-  <version>1.3-SNAPSHOT</version>
+  <version>${changelist}</version>
   <packaging>hpi</packaging>
 
   <name>Mock Load Builder Plugin</name>
@@ -41,31 +42,29 @@
     This plugin provides a build step that generates mock load on the build node for use when testing
     Jenkins scalability.
   </description>
+  <!-- TODO import to GitHub -->
   <url>http://wiki.jenkins-ci.org/display/JENKINS/Mock+Load+Builder+Plugin</url>
   <licenses>
     <license>
       <name>The MIT license</name>
-      <url>http://www.opensource.org/licenses/mit-license.php</url>
+      <url>https://opensource.org/licenses/MIT</url>
       <distribution>repo</distribution>
     </license>
   </licenses>
 
-  <developers>
-    <developer>
-      <id>stephenconnolly</id>
-      <name>Stephen Connolly</name>
-    </developer>
-  </developers>
-
   <scm>
-    <connection>scm:git:git://github.com/jenkinsci/mock-load-builder-plugin.git</connection>
-    <developerConnection>scm:git:git@github.com:jenkinsci/mock-load-builder-plugin.git</developerConnection>
-    <url>http://github.com/jenkinsci/mock-load-builder-plugin</url>
-    <tag>HEAD</tag>
+    <connection>scm:git:git://github.com/${gitHubRepo}.git</connection>
+    <developerConnection>scm:git:git@github.com:${gitHubRepo}.git</developerConnection>
+    <url>http://github.com/${gitHubRepo}</url>
+    <tag>${scmTag}</tag>
   </scm>
 
   <properties>
+    <changelist>999999-SNAPSHOT</changelist>
+    <gitHubRepo>jenkinsci/mock-load-builder-plugin</gitHubRepo>
     <java.level>8</java.level>
+    <!-- TODO define jenkins.version -->
+    <spotbugs.skip>true</spotbugs.skip> <!-- not for production anyway -->
   </properties>
 
   <repositories>
@@ -123,20 +122,6 @@
       <artifactId>matrix-project</artifactId>
       <optional>true</optional>
     </dependency>
-    <!-- jenkins dependencies -->
-    <!-- test dependencies -->
-    <dependency>
-      <groupId>junit</groupId>
-      <artifactId>junit</artifactId>
-      <version>4.13</version>
-      <exclusions>
-        <exclusion>
-          <groupId>org.hamcrest</groupId>
-          <artifactId>hamcrest-core</artifactId>
-        </exclusion>
-      </exclusions>
-      <scope>test</scope>
-    </dependency>
   </dependencies>
 
   <dependencyManagement>
@@ -144,6 +129,7 @@
       <dependency>
         <groupId>io.jenkins.tools.bom</groupId>
         <artifactId>bom-2.176.x</artifactId>
+        <!-- TODO set up Dependabot -->
         <version>6</version>
         <scope>import</scope>
         <type>pom</type>

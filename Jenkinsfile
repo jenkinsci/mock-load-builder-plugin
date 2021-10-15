@@ -1,1 +1,1 @@
-buildPlugin()
+buildPlugin(useContainerAgent: true)
