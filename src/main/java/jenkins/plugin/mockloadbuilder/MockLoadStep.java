@@ -1,7 +1,6 @@
 package jenkins.plugin.mockloadbuilder;
 
 import com.google.common.collect.ImmutableSet;
-import hudson.Extension;
 import hudson.FilePath;
 import hudson.Launcher;
 import hudson.model.TaskListener;
@@ -16,6 +15,7 @@ import org.kohsuke.stapler.DataBoundConstructor;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.Set;
+import org.jenkinsci.plugins.variant.OptionalExtension;
 
 public class MockLoadStep extends Step {
 
@@ -34,7 +34,7 @@ public class MockLoadStep extends Step {
         return new Execution(this, context);
     }
 
-    @Extension(optional = true)
+    @OptionalExtension(requirePlugins = "workflow-step-api")
     public static class DescriptorImpl extends StepDescriptor {
         @Override
         public Set<? extends Class<?>> getRequiredContext() {

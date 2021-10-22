@@ -1,8 +1,8 @@
 package jenkins.plugin.mockloadbuilder;
 
-import hudson.Extension;
+import org.jenkinsci.plugins.variant.OptionalExtension;
 
-@Extension(optional = true)
+@OptionalExtension(requirePlugins = "matrix-project")
 public class CreateMockLoadMatrix extends AbstractCreateMockLoad {
     @Override
     public String getShortDescription() {
