@@ -1,16 +1,15 @@
 package jenkins.plugin.mockloadbuilder;
 
-import hudson.Extension;
 import hudson.model.Job;
-import hudson.tasks.LogRotator;
 import jenkins.model.Jenkins;
 import jenkins.model.ModifiableTopLevelItemGroup;
 import org.jenkinsci.plugins.workflow.cps.CpsFlowDefinition;
 import org.jenkinsci.plugins.workflow.job.WorkflowJob;
 
 import java.io.IOException;
+import org.jenkinsci.plugins.variant.OptionalExtension;
 
-@Extension(optional = true)
+@OptionalExtension(requirePlugins = {"workflow-job", "workflow-cps", "workflow-basic-steps", "workflow-durable-task-step"})
 public class PipelineMockProjectFactory extends MockProjectFactory {
     @Override
     public int getFrequency() {

@@ -1,8 +1,8 @@
 package jenkins.plugin.mockloadbuilder;
 
-import hudson.Extension;
+import org.jenkinsci.plugins.variant.OptionalExtension;
 
-@Extension(optional = true)
+@OptionalExtension(requirePlugins = {"workflow-job", "workflow-cps", "workflow-basic-steps", "workflow-durable-task-step"})
 public class CreateMockLoadPipeline extends AbstractCreateMockLoad {
     @Override
     public String getShortDescription() {
