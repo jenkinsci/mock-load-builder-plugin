@@ -8,7 +8,9 @@ import org.kohsuke.stapler.DataBoundSetter;
 import org.kohsuke.stapler.StaplerRequest;
 
 import javax.annotation.Nonnull;
+import org.jenkinsci.Symbol;
 
+@Symbol("mockLoad")
 @Extension
 public class Config extends GlobalConfiguration {
     private int freestyleFrequency = 45;
