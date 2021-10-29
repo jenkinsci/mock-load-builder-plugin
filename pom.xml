@@ -42,8 +42,7 @@
     This plugin provides a build step that generates mock load on the build node for use when testing
     Jenkins scalability.
   </description>
-  <!-- TODO import to GitHub -->
-  <url>http://wiki.jenkins-ci.org/display/JENKINS/Mock+Load+Builder+Plugin</url>
+  <url>http://github.com/jenkinsci/mock-load-builder-plugin</url>
   <licenses>
     <license>
       <name>The MIT license</name>
