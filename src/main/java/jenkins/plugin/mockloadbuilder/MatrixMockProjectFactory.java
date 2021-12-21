@@ -1,16 +1,15 @@
 package jenkins.plugin.mockloadbuilder;
 
-import hudson.Extension;
 import hudson.matrix.AxisList;
 import hudson.matrix.MatrixProject;
 import hudson.matrix.TextAxis;
 import hudson.model.Job;
+import java.io.IOException;
 import jenkins.model.Jenkins;
 import jenkins.model.ModifiableTopLevelItemGroup;
+import org.jenkinsci.plugins.variant.OptionalExtension;
 
-import java.io.IOException;
-
-@Extension
+@OptionalExtension(requirePlugins = "matrix-project")
 public class MatrixMockProjectFactory extends MockProjectFactory {
     @Override
     public int getFrequency() {
