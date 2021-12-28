@@ -7,7 +7,7 @@ import net.sf.json.JSONObject;
 import org.kohsuke.stapler.DataBoundSetter;
 import org.kohsuke.stapler.StaplerRequest;
 
-import javax.annotation.Nonnull;
+import edu.umd.cs.findbugs.annotations.NonNull;
 import org.jenkinsci.Symbol;
 
 @Symbol("mockLoad")
@@ -70,7 +70,7 @@ public class Config extends GlobalConfiguration {
         this.matrixMultiplier = matrixMultiplier;
     }
 
-    @Nonnull
+    @NonNull
     @Override
     public String getDisplayName() {
         return "Mock Load Builder";

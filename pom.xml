@@ -29,7 +29,7 @@
   <parent>
     <groupId>org.jenkins-ci.plugins</groupId>
     <artifactId>plugin</artifactId>
-    <version>4.31</version>
+    <version>4.32</version>
     <relativePath/>
   </parent>
 
@@ -62,7 +62,7 @@
     <changelist>999999-SNAPSHOT</changelist>
     <gitHubRepo>jenkinsci/mock-load-builder-plugin</gitHubRepo>
     <java.level>8</java.level>
-    <!-- TODO define jenkins.version -->
+    <jenkins.version>2.289.1</jenkins.version>
     <spotbugs.skip>true</spotbugs.skip> <!-- not for production anyway -->
   </properties>
 
@@ -81,16 +81,18 @@
 
   <dependencies>
     <dependency>
-      <groupId>org.jenkins-ci</groupId>
-      <artifactId>symbol-annotation</artifactId>
-    </dependency>
-    <dependency>
       <groupId>org.jenkins-ci.plugins</groupId>
       <artifactId>variant</artifactId>
     </dependency>
     <dependency>
       <groupId>org.jenkins-ci.plugins</groupId>
       <artifactId>junit</artifactId>
+      <exclusions>
+        <exclusion>
+          <groupId>javax.annotation</groupId>
+          <artifactId>javax.annotation-api</artifactId>
+        </exclusion>
+      </exclusions>
     </dependency>
     <dependency>
       <groupId>org.jenkins-ci.plugins.workflow</groupId>
@@ -133,9 +135,8 @@
     <dependencies>
       <dependency>
         <groupId>io.jenkins.tools.bom</groupId>
-        <artifactId>bom-2.176.x</artifactId>
-        <!-- TODO set up Dependabot -->
-        <version>16</version>
+        <artifactId>bom-2.289.x</artifactId>
+        <version>1075.v14bef33e5d7b</version>
         <scope>import</scope>
         <type>pom</type>
       </dependency>
