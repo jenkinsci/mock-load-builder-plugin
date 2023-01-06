@@ -1,0 +1,4 @@
+<?jelly escape-by-default='true'?>
+<div>
+    Provides a build step that generates mock load on the build node for use when testing Jenkins scalability.
+</div>
