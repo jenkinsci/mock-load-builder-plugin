@@ -29,7 +29,7 @@
   <parent>
     <groupId>org.jenkins-ci.plugins</groupId>
     <artifactId>plugin</artifactId>
-    <version>4.33</version>
+    <version>4.53</version>
     <relativePath/>
   </parent>
 
@@ -38,10 +38,6 @@
   <packaging>hpi</packaging>
 
   <name>Mock Load Builder Plugin</name>
-  <description>
-    This plugin provides a build step that generates mock load on the build node for use when testing
-    Jenkins scalability.
-  </description>
   <url>http://github.com/jenkinsci/mock-load-builder-plugin</url>
   <licenses>
     <license>
@@ -62,7 +58,7 @@
     <changelist>999999-SNAPSHOT</changelist>
     <gitHubRepo>jenkinsci/mock-load-builder-plugin</gitHubRepo>
     <java.level>8</java.level>
-    <jenkins.version>2.289.1</jenkins.version>
+    <jenkins.version>2.361.4</jenkins.version>
     <spotbugs.skip>true</spotbugs.skip> <!-- not for production anyway -->
   </properties>
 
@@ -129,8 +125,8 @@
     <dependencies>
       <dependency>
         <groupId>io.jenkins.tools.bom</groupId>
-        <artifactId>bom-2.289.x</artifactId>
-        <version>1090.v0a_33df40457a_</version>
+        <artifactId>bom-2.361.x</artifactId>
+        <version>1580.v47b_429a_c853a</version>
         <scope>import</scope>
         <type>pom</type>
       </dependency>
