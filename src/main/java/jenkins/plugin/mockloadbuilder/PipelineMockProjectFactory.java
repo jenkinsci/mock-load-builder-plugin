@@ -23,7 +23,9 @@ public class PipelineMockProjectFactory extends MockProjectFactory {
         project.setBuildDiscarder(createBuildDiscarder(fastRotate));
         project.setDefinition(new CpsFlowDefinition(String.format(
                 "node {%n"
-                        + "  mockLoad %d%n"
+                        + "  withMockLoad(averageDuration: %d) {%n"
+                        + "    sh MOCK_LOAD_COMMAND%n"
+                        + "  }%n"
                         + "  archiveArtifacts allowEmptyArchive: true, artifacts: 'mock-artifact-*.txt'%n"
                         + "  fingerprint 'mock-artifact-*.txt'%n"
                         + "  junit 'mock-junit.xml'%n"
