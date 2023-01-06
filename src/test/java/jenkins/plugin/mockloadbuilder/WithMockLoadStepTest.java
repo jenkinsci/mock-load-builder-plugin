@@ -45,7 +45,11 @@ public class WithMockLoadStepTest {
             p.setDefinition(new CpsFlowDefinition(
                 "node('remote') {\n" +
                 "  withMockLoad(averageDuration: 15) {\n" +
-                "    sh MOCK_LOAD_COMMAND\n" +
+                "    if (isUnix()) {\n" +
+                "      sh MOCK_LOAD_COMMAND\n" +
+                "    } else {\n" +
+                "      bat MOCK_LOAD_COMMAND\n" +
+                "    }\n" +
                 "  }\n" +
                 "  junit 'mock-junit.xml'\n" +
                 "  archiveArtifacts artifacts: 'mock-artifact-*.txt', allowEmptyArchive: true, fingerprint: true\n" +
