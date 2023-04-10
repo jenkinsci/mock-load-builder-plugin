@@ -15,8 +15,7 @@ import java.util.concurrent.TimeUnit;
 
 public class MockLoad {
 
-    public static void main(String... args)
-            throws Exception {
+    public static void main(String... args) throws Exception {
         long averageDuration;
         if (args.length > 0) {
             try {
@@ -33,7 +32,8 @@ public class MockLoad {
         }
     }
 
-    public static boolean build(File baseDir, long averageDuration, PrintStream out) throws IOException, InterruptedException {
+    public static boolean build(File baseDir, long averageDuration, PrintStream out)
+            throws IOException, InterruptedException {
         Random entropy = new Random();
 
         long duration = averageDuration + (long) (Math.sqrt(averageDuration) * entropy.nextGaussian());
@@ -63,16 +63,15 @@ public class MockLoad {
         out.println("[INFO] ------------------------------------------------------------------------");
         out.println("[INFO] Reactor Summary:");
         out.println("[INFO]");
-        out.println(
-                "[INFO] mock-load ......................................... " + result + " [" + duration + "s]");
+        out.println("[INFO] mock-load ......................................... " + result + " [" + duration + "s]");
         out.println("[INFO]");
         out.println("[INFO] ------------------------------------------------------------------------");
         out.println("[INFO] BUILD " + result);
         out.println("[INFO] ------------------------------------------------------------------------");
         out.println("[INFO] Total time: " + duration + "s");
         out.println("[INFO] Finished at: " + new Date());
-        out.println("[INFO] Final Memory: " + (Runtime.getRuntime().totalMemory() / 1024 / 1024) + "M/" + (
-                Runtime.getRuntime().maxMemory() / 1024 / 1024) + "M");
+        out.println("[INFO] Final Memory: " + (Runtime.getRuntime().totalMemory() / 1024 / 1024) + "M/"
+                + (Runtime.getRuntime().maxMemory() / 1024 / 1024) + "M");
         out.println("[INFO] ------------------------------------------------------------------------");
         return "SUCCESS".equals(result);
     }
@@ -124,9 +123,8 @@ public class MockLoad {
                     if (testNameIndex < 5 + testClassName.length() % testMethodNames.length) {
                         testName = testMethodNames[testNameIndex++];
                     } else {
-                        out.println(
-                                "Tests run: " + runCount + ", Failures: " + runFailures + ", Errors: " + runErrors
-                                        + ", Skipped: " + runSkipped + ", Time elapsed: " + runDuration + " sec");
+                        out.println("Tests run: " + runCount + ", Failures: " + runFailures + ", Errors: " + runErrors
+                                + ", Skipped: " + runSkipped + ", Time elapsed: " + runDuration + " sec");
                         totalCount += runCount;
                         totalFailures += runFailures;
                         totalErrors += runErrors;
@@ -156,17 +154,15 @@ public class MockLoad {
                     if (testNum < failCount) {
                         runFailures++;
                         failCount--;
-                        pw.println(
-                                "      <failure message=\"Expected something, got something else\" type=\"java.lang"
-                                        + ".AssertionError\">");
+                        pw.println("      <failure message=\"Expected something, got something else\" type=\"java.lang"
+                                + ".AssertionError\">");
                         new AssertionError().printStackTrace(pw);
                         pw.println("      </failure>");
                     } else if (testNum < failCount + errorCount) {
                         runErrors++;
                         errorCount--;
-                        pw.println(
-                                "      <error message=\"Something unexpected happened\" type=\"java.lang"
-                                        + ".OutOfMemoryError\">");
+                        pw.println("      <error message=\"Something unexpected happened\" type=\"java.lang"
+                                + ".OutOfMemoryError\">");
                         new OutOfMemoryError().printStackTrace(pw);
                         pw.println("      </error>");
                     } else if (testNum < failCount + errorCount + skipCount) {
@@ -187,9 +183,8 @@ public class MockLoad {
                 totalErrors += runErrors;
                 totalSkipped += runSkipped;
                 totalDuration += runDuration;
-                out.println(
-                        "Tests run: " + totalCount + ", Failures: " + totalFailures + ", Errors: " + totalErrors
-                                + ", Skipped: " + totalSkipped + ", Time elapsed: " + totalDuration + " sec");
+                out.println("Tests run: " + totalCount + ", Failures: " + totalFailures + ", Errors: " + totalErrors
+                        + ", Skipped: " + totalSkipped + ", Time elapsed: " + totalDuration + " sec");
                 return totalErrors == 0 && totalFailures == 0;
             } finally {
                 pw.close();
@@ -199,7 +194,8 @@ public class MockLoad {
         }
     }
 
-    private static void doWork(Random entropy, long duration, PrintStream out, File baseDir) throws InterruptedException {
+    private static void doWork(Random entropy, long duration, PrintStream out, File baseDir)
+            throws InterruptedException {
         out.println("[INFO]");
         out.println("[INFO] --- maven-compiler-plugin:2.3.2:compile (default-compile) @ mock-load ---");
 
@@ -217,9 +213,8 @@ public class MockLoad {
             Thread.sleep(entropy.nextInt(1000));
             int size = entropy.nextInt(2048);
             long t = System.currentTimeMillis();
-            out.println(
-                    "Downloading: http://repo.maven.apache.org/maven2/org/jenkinsci/plugins/mock-load/foobar/" + t
-                            + "/foobar-" + t + ".jar");
+            out.println("Downloading: http://repo.maven.apache.org/maven2/org/jenkinsci/plugins/mock-load/foobar/" + t
+                    + "/foobar-" + t + ".jar");
             for (int i = size; i > 0; i--) {
                 if (i % 64 == 0) {
                     out.print("\r" + (size - i) + "/" + size + " KB");
@@ -228,13 +223,13 @@ public class MockLoad {
                 int j = entropy.nextInt(buffer.length);
                 buffer[j] = (byte) entropy.nextInt();
                 sha1.update(buffer);
-                long delay = t + (long)((size - i) * kbPerMilli) - System.currentTimeMillis();
+                long delay = t + (long) ((size - i) * kbPerMilli) - System.currentTimeMillis();
                 if (delay > 0) Thread.sleep(delay);
-
             }
             out.println();
             out.printf(
-                    "Downloaded: http://repo.maven.apache.org/maven2/org/jenkinsci/plugins/mock-load/foobar/%s/foobar-%s.jar (%d KB at %.1f KB/sec)%n", t, t, size, kbPerMilli*1000.0);
+                    "Downloaded: http://repo.maven.apache.org/maven2/org/jenkinsci/plugins/mock-load/foobar/%s/foobar-%s.jar (%d KB at %.1f KB/sec)%n",
+                    t, t, size, kbPerMilli * 1000.0);
             out.println("[INFO] Random hash: " + toHexString(sha1.digest()));
         }
         File[] files = baseDir.listFiles();
@@ -290,132 +285,131 @@ public class MockLoad {
     }
 
     private static final String[] testClassNames = {
-            "jenkins.plugin.mockloadbuilder.model.FooTest",
-            "jenkins.plugin.mockloadbuilder.model.BarTest",
-            "jenkins.plugin.mockloadbuilder.model.ManchuTest",
-            "jenkins.plugin.mockloadbuilder.model.FooBarTest",
-            "jenkins.plugin.mockloadbuilder.model.BarFooTest",
-            "jenkins.plugin.mockloadbuilder.model.BarManchuTest",
-            "jenkins.plugin.mockloadbuilder.model.ManchuBarTest",
-            "jenkins.plugin.mockloadbuilder.model.FooManchuTest",
-            "jenkins.plugin.mockloadbuilder.model.ManchuFooTest",
-            "jenkins.plugin.mockloadbuilder.model.FooBarManchuTest",
-            "jenkins.plugin.mockloadbuilder.model.BarFooManchuTest",
-            "jenkins.plugin.mockloadbuilder.model.BarManchuFooTest",
-            "jenkins.plugin.mockloadbuilder.model.FooManchuBarTest",
-            "jenkins.plugin.mockloadbuilder.model.ManchuFooBarTest",
-            "jenkins.plugin.mockloadbuilder.model.ManchuBarFooTest",
-            "jenkins.plugin.mockloadbuilder.factories.AbstractFactoryTest",
-            "jenkins.plugin.mockloadbuilder.factories.FooFactoryTest",
-            "jenkins.plugin.mockloadbuilder.factories.BarFactoryTest",
-            "jenkins.plugin.mockloadbuilder.factories.ManchuFactoryTest",
-            "jenkins.plugin.mockloadbuilder.factories.FooBarFactoryTest",
-            "jenkins.plugin.mockloadbuilder.factories.BarFooFactoryTest",
-            "jenkins.plugin.mockloadbuilder.factories.BarManchuFactoryTest",
-            "jenkins.plugin.mockloadbuilder.factories.ManchuBarFactoryTest",
-            "jenkins.plugin.mockloadbuilder.factories.FooManchuFactoryTest",
-            "jenkins.plugin.mockloadbuilder.factories.ManchuFooFactoryTest",
-            "jenkins.plugin.mockloadbuilder.factories.FooBarManchuFactoryTest",
-            "jenkins.plugin.mockloadbuilder.factories.BarFooManchuFactoryTest",
-            "jenkins.plugin.mockloadbuilder.factories.BarManchuFooFactoryTest",
-            "jenkins.plugin.mockloadbuilder.factories.FooManchuBarFactoryTest",
-            "jenkins.plugin.mockloadbuilder.factories.ManchuFooBarFactoryTest",
-            "jenkins.plugin.mockloadbuilder.factories.ManchuBarFooFactoryTest",
-            "jenkins.plugin.mockloadbuilder.managers.AbstractManagerTest",
-            "jenkins.plugin.mockloadbuilder.managers.FooManagerTest",
-            "jenkins.plugin.mockloadbuilder.managers.BarManagerTest",
-            "jenkins.plugin.mockloadbuilder.managers.ManchuManagerTest",
-            "jenkins.plugin.mockloadbuilder.managers.FooBarManagerTest",
-            "jenkins.plugin.mockloadbuilder.managers.BarFooManagerTest",
-            "jenkins.plugin.mockloadbuilder.managers.BarManchuManagerTest",
-            "jenkins.plugin.mockloadbuilder.managers.ManchuBarManagerTest",
-            "jenkins.plugin.mockloadbuilder.managers.FooManchuManagerTest",
-            "jenkins.plugin.mockloadbuilder.managers.ManchuFooManagerTest",
-            "jenkins.plugin.mockloadbuilder.managers.FooBarManchuManagerTest",
-            "jenkins.plugin.mockloadbuilder.managers.BarFooManchuManagerTest",
-            "jenkins.plugin.mockloadbuilder.managers.BarManchuFooManagerTest",
-            "jenkins.plugin.mockloadbuilder.managers.FooManchuBarManagerTest",
-            "jenkins.plugin.mockloadbuilder.managers.ManchuFooBarManagerTest",
-            "jenkins.plugin.mockloadbuilder.managers.ManchuBarFooManagerTest",
+        "jenkins.plugin.mockloadbuilder.model.FooTest",
+        "jenkins.plugin.mockloadbuilder.model.BarTest",
+        "jenkins.plugin.mockloadbuilder.model.ManchuTest",
+        "jenkins.plugin.mockloadbuilder.model.FooBarTest",
+        "jenkins.plugin.mockloadbuilder.model.BarFooTest",
+        "jenkins.plugin.mockloadbuilder.model.BarManchuTest",
+        "jenkins.plugin.mockloadbuilder.model.ManchuBarTest",
+        "jenkins.plugin.mockloadbuilder.model.FooManchuTest",
+        "jenkins.plugin.mockloadbuilder.model.ManchuFooTest",
+        "jenkins.plugin.mockloadbuilder.model.FooBarManchuTest",
+        "jenkins.plugin.mockloadbuilder.model.BarFooManchuTest",
+        "jenkins.plugin.mockloadbuilder.model.BarManchuFooTest",
+        "jenkins.plugin.mockloadbuilder.model.FooManchuBarTest",
+        "jenkins.plugin.mockloadbuilder.model.ManchuFooBarTest",
+        "jenkins.plugin.mockloadbuilder.model.ManchuBarFooTest",
+        "jenkins.plugin.mockloadbuilder.factories.AbstractFactoryTest",
+        "jenkins.plugin.mockloadbuilder.factories.FooFactoryTest",
+        "jenkins.plugin.mockloadbuilder.factories.BarFactoryTest",
+        "jenkins.plugin.mockloadbuilder.factories.ManchuFactoryTest",
+        "jenkins.plugin.mockloadbuilder.factories.FooBarFactoryTest",
+        "jenkins.plugin.mockloadbuilder.factories.BarFooFactoryTest",
+        "jenkins.plugin.mockloadbuilder.factories.BarManchuFactoryTest",
+        "jenkins.plugin.mockloadbuilder.factories.ManchuBarFactoryTest",
+        "jenkins.plugin.mockloadbuilder.factories.FooManchuFactoryTest",
+        "jenkins.plugin.mockloadbuilder.factories.ManchuFooFactoryTest",
+        "jenkins.plugin.mockloadbuilder.factories.FooBarManchuFactoryTest",
+        "jenkins.plugin.mockloadbuilder.factories.BarFooManchuFactoryTest",
+        "jenkins.plugin.mockloadbuilder.factories.BarManchuFooFactoryTest",
+        "jenkins.plugin.mockloadbuilder.factories.FooManchuBarFactoryTest",
+        "jenkins.plugin.mockloadbuilder.factories.ManchuFooBarFactoryTest",
+        "jenkins.plugin.mockloadbuilder.factories.ManchuBarFooFactoryTest",
+        "jenkins.plugin.mockloadbuilder.managers.AbstractManagerTest",
+        "jenkins.plugin.mockloadbuilder.managers.FooManagerTest",
+        "jenkins.plugin.mockloadbuilder.managers.BarManagerTest",
+        "jenkins.plugin.mockloadbuilder.managers.ManchuManagerTest",
+        "jenkins.plugin.mockloadbuilder.managers.FooBarManagerTest",
+        "jenkins.plugin.mockloadbuilder.managers.BarFooManagerTest",
+        "jenkins.plugin.mockloadbuilder.managers.BarManchuManagerTest",
+        "jenkins.plugin.mockloadbuilder.managers.ManchuBarManagerTest",
+        "jenkins.plugin.mockloadbuilder.managers.FooManchuManagerTest",
+        "jenkins.plugin.mockloadbuilder.managers.ManchuFooManagerTest",
+        "jenkins.plugin.mockloadbuilder.managers.FooBarManchuManagerTest",
+        "jenkins.plugin.mockloadbuilder.managers.BarFooManchuManagerTest",
+        "jenkins.plugin.mockloadbuilder.managers.BarManchuFooManagerTest",
+        "jenkins.plugin.mockloadbuilder.managers.FooManchuBarManagerTest",
+        "jenkins.plugin.mockloadbuilder.managers.ManchuFooBarManagerTest",
+        "jenkins.plugin.mockloadbuilder.managers.ManchuBarFooManagerTest",
     };
 
     private static final String[] testMethodNames = {
-            "smokes",
-            "equalsContract",
-            "hashCodeContract",
-            "toString",
-            "defaultConstructor",
-            "getSetWidget",
-            "getSetThingimys",
-            "getSetWhajamacallits",
-            "doSomething",
-            "doAnotherThing",
-            "watchClass",
-            "watchSizteenCandles",
-            "watchGrandviewUSA",
-            "watchTheSureThing",
-            "watchTheJourneyOfNattyGann",
-            "watchBetterOffDead",
-            "watchStandByMe",
-            "watchOneCrazySummer",
-            "watchHotPursuit",
-            "watchBroadcastNews",
-            "watchEightMenOut",
-            "watchTapeheads",
-            "watchSayAnything",
-            "watchFatManAndLittleBoy",
-            "watchTheGrifters",
-            "watchTrueColors",
-            "watchShadowsAndFog",
-            "watchThePlayer",
-            "watchBobRoberts",
-            "watchRoadsideProphets",
-            "watchMapOfTheHumanHeart",
-            "watchMoneyForNothing",
-            "watchFloundering",
-            "watchBulletsOverBroadway",
-            "watchTheRoadToWellville",
-            "watchCityHall",
-            "watchGrossePointeBlank",
-            "watchConAir",
-            "watchChicagoCab",
-            "watchAnastasia",
-            "watchMidnightInTheGardenOfGoodAndEvil",
-            "watchThisIsMyFather",
-            "watchTheThinRedLine",
-            "watchPushingTin",
-            "watchCradleWillRock",
-            "watchBeingJohnMalkovich",
-            "watchHighFidelity",
-            "watchAmericasSweethearts",
-            "watchSerendipity",
-            "watchMax",
-            "watchAdaptation",
-            "watchIdentity",
-            "watchBreakfastWithHunter",
-            "watchRunawayJury",
-            "watchMustLoveDogs",
-            "watchTheIceHarvest",
-            "watchTheContract",
-            "watchJoeStrummerTheFutureIsUnwritten",
-            "watchMartianChild",
-            "watch1408",
-            "watchGraceIsGone",
-            "watchIgor",
-            "dontWatchWarInc_IWantThose2HoursOfMyLifeBack",
-            "watch2012",
-            "watchHotTubTimeMachine",
-            "watchShanghai",
-            "watchTheFactory",
-            "watchTheRaven",
-            "watchThePaperboy",
-            "watchTheNumbersStation",
-            "watchAdultWorld",
-            "watchTheFrozenGround",
-            "watchTheButler",
-            "watchGrandPiano",
-            "watchTheSureThing_again",
-            "watchGrossePointeBlank_again"
+        "smokes",
+        "equalsContract",
+        "hashCodeContract",
+        "toString",
+        "defaultConstructor",
+        "getSetWidget",
+        "getSetThingimys",
+        "getSetWhajamacallits",
+        "doSomething",
+        "doAnotherThing",
+        "watchClass",
+        "watchSizteenCandles",
+        "watchGrandviewUSA",
+        "watchTheSureThing",
+        "watchTheJourneyOfNattyGann",
+        "watchBetterOffDead",
+        "watchStandByMe",
+        "watchOneCrazySummer",
+        "watchHotPursuit",
+        "watchBroadcastNews",
+        "watchEightMenOut",
+        "watchTapeheads",
+        "watchSayAnything",
+        "watchFatManAndLittleBoy",
+        "watchTheGrifters",
+        "watchTrueColors",
+        "watchShadowsAndFog",
+        "watchThePlayer",
+        "watchBobRoberts",
+        "watchRoadsideProphets",
+        "watchMapOfTheHumanHeart",
+        "watchMoneyForNothing",
+        "watchFloundering",
+        "watchBulletsOverBroadway",
+        "watchTheRoadToWellville",
+        "watchCityHall",
+        "watchGrossePointeBlank",
+        "watchConAir",
+        "watchChicagoCab",
+        "watchAnastasia",
+        "watchMidnightInTheGardenOfGoodAndEvil",
+        "watchThisIsMyFather",
+        "watchTheThinRedLine",
+        "watchPushingTin",
+        "watchCradleWillRock",
+        "watchBeingJohnMalkovich",
+        "watchHighFidelity",
+        "watchAmericasSweethearts",
+        "watchSerendipity",
+        "watchMax",
+        "watchAdaptation",
+        "watchIdentity",
+        "watchBreakfastWithHunter",
+        "watchRunawayJury",
+        "watchMustLoveDogs",
+        "watchTheIceHarvest",
+        "watchTheContract",
+        "watchJoeStrummerTheFutureIsUnwritten",
+        "watchMartianChild",
+        "watch1408",
+        "watchGraceIsGone",
+        "watchIgor",
+        "dontWatchWarInc_IWantThose2HoursOfMyLifeBack",
+        "watch2012",
+        "watchHotTubTimeMachine",
+        "watchShanghai",
+        "watchTheFactory",
+        "watchTheRaven",
+        "watchThePaperboy",
+        "watchTheNumbersStation",
+        "watchAdultWorld",
+        "watchTheFrozenGround",
+        "watchTheButler",
+        "watchGrandPiano",
+        "watchTheSureThing_again",
+        "watchGrossePointeBlank_again"
     };
-
 }

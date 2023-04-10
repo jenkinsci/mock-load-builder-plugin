@@ -1,14 +1,13 @@
 package jenkins.plugin.mockloadbuilder;
 
+import edu.umd.cs.findbugs.annotations.NonNull;
 import hudson.Extension;
 import hudson.ExtensionList;
 import jenkins.model.GlobalConfiguration;
 import net.sf.json.JSONObject;
+import org.jenkinsci.Symbol;
 import org.kohsuke.stapler.DataBoundSetter;
 import org.kohsuke.stapler.StaplerRequest;
-
-import edu.umd.cs.findbugs.annotations.NonNull;
-import org.jenkinsci.Symbol;
 
 @Symbol("mockLoad")
 @Extension
@@ -75,6 +74,4 @@ public class Config extends GlobalConfiguration {
     public String getDisplayName() {
         return "Mock Load Builder";
     }
-
-
 }

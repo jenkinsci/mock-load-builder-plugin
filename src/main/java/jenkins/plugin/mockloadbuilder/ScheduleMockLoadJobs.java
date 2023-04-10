@@ -6,12 +6,11 @@ import hudson.model.BuildableItem;
 import hudson.model.Cause;
 import hudson.model.Item;
 import hudson.model.User;
+import java.util.Collections;
+import java.util.List;
 import jenkins.model.Jenkins;
 import jenkins.model.ModifiableTopLevelItemGroup;
 import org.kohsuke.args4j.Argument;
-
-import java.util.Collections;
-import java.util.List;
 
 @Extension
 public class ScheduleMockLoadJobs extends CLICommand {

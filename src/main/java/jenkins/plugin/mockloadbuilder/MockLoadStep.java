@@ -4,18 +4,17 @@ import com.google.common.collect.ImmutableSet;
 import hudson.FilePath;
 import hudson.Launcher;
 import hudson.model.TaskListener;
+import java.io.InputStream;
+import java.io.OutputStream;
+import java.util.Set;
 import org.apache.commons.io.IOUtils;
+import org.jenkinsci.plugins.variant.OptionalExtension;
 import org.jenkinsci.plugins.workflow.steps.Step;
 import org.jenkinsci.plugins.workflow.steps.StepContext;
 import org.jenkinsci.plugins.workflow.steps.StepDescriptor;
 import org.jenkinsci.plugins.workflow.steps.StepExecution;
 import org.jenkinsci.plugins.workflow.steps.SynchronousNonBlockingStepExecution;
 import org.kohsuke.stapler.DataBoundConstructor;
-
-import java.io.InputStream;
-import java.io.OutputStream;
-import java.util.Set;
-import org.jenkinsci.plugins.variant.OptionalExtension;
 
 public class MockLoadStep extends Step {
 
@@ -30,7 +29,8 @@ public class MockLoadStep extends Step {
         return averageDuration;
     }
 
-    @Override public StepExecution start(StepContext context) {
+    @Override
+    public StepExecution start(StepContext context) {
         return new Execution(this, context);
     }
 
@@ -58,7 +58,7 @@ public class MockLoadStep extends Step {
     public static class Execution extends SynchronousNonBlockingStepExecution<Void> {
         private static final long serialVersionUID = 1L;
 
-        private transient final MockLoadStep step;
+        private final transient MockLoadStep step;
 
         Execution(MockLoadStep step, StepContext context) {
             super(context);
@@ -74,10 +74,12 @@ public class MockLoadStep extends Step {
                 ws.act(ws.asCallableWith(new MockLoadBuilder.NoFork(step.getAverageDuration(), listener)));
             } else {
                 try (InputStream is = getClass().getResourceAsStream("/mock/MockLoad.class");
-                     OutputStream os = ws.child("mock/MockLoad.class").write()) {
+                        OutputStream os = ws.child("mock/MockLoad.class").write()) {
                     IOUtils.copy(is, os);
                 }
-                launcher.launch().pwd(ws).cmds("java", "mock.MockLoad", Long.toString(step.getAverageDuration()))
+                launcher.launch()
+                        .pwd(ws)
+                        .cmds("java", "mock.MockLoad", Long.toString(step.getAverageDuration()))
                         .stdout(listener)
                         .start()
                         .join();

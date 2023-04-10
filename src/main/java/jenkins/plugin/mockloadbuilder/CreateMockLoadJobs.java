@@ -5,16 +5,15 @@ import hudson.ExtensionList;
 import hudson.cli.CLICommand;
 import hudson.model.Computer;
 import hudson.model.Item;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+import java.util.Random;
 import jenkins.model.Jenkins;
 import jenkins.model.ModifiableTopLevelItemGroup;
 import org.apache.commons.lang.StringUtils;
 import org.kohsuke.args4j.Argument;
 import org.kohsuke.args4j.Option;
-
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-import java.util.Random;
 
 @Extension
 public class CreateMockLoadJobs extends CLICommand {
@@ -32,7 +31,10 @@ public class CreateMockLoadJobs extends CLICommand {
     @Argument(index = 0, metaVar = "COUNT", usage = "Number of jobs to create", required = true)
     public Integer count;
 
-    @Argument(index = 1, metaVar = "DURATION", usage = "Average build duration, -1 will give a typical random duration to each job")
+    @Argument(
+            index = 1,
+            metaVar = "DURATION",
+            usage = "Average build duration, -1 will give a typical random duration to each job")
     public Long averageDuration;
 
     @Argument(index = 2, metaVar = "FOLDER", usage = "Where to create the jobs")
@@ -75,23 +77,24 @@ public class CreateMockLoadJobs extends CLICommand {
             long duration = (long) (averageDuration * Math.exp(entropy.nextGaussian()) / 1.649);
             factory.create(ig, name, duration, fastRotate);
             stdout.println("Created " + name + " (" + factory.getName() + ") with average duration " + duration + "s");
-            sumDuration += duration*factory.getMultiplier();
+            sumDuration += duration * factory.getMultiplier();
             countDuration += factory.getMultiplier();
             multiplier = (multiplier * n + factory.getMultiplier()) / (n + 1.0);
         }
         if (countDuration > 0) {
             stdout.printf("Overall average duration: %ds%n", (sumDuration / countDuration));
         }
-        stdout.printf("Expected executor multiplier: %.1f x (number of builds scheduled per minute)%n",
+        stdout.printf(
+                "Expected executor multiplier: %.1f x (number of builds scheduled per minute)%n",
                 (sumDuration / 60.0 / countDuration * multiplier));
         int executorCount = 0;
-        for (Computer c: jenkins.getComputers()) {
+        for (Computer c : jenkins.getComputers()) {
             executorCount += c.getNumExecutors();
         }
-        stdout.printf("Current ideal max build rate: %.1f builds per minute%n",
+        stdout.printf(
+                "Current ideal max build rate: %.1f builds per minute%n",
                 Math.floor(executorCount / (sumDuration / 60.0 / countDuration * multiplier)));
 
         return 0;
     }
-
 }

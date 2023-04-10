@@ -1,25 +1,24 @@
 package jenkins.plugin.mockloadbuilder;
 
-import hudson.model.Run;
-import hudson.model.TaskListener;
-import hudson.remoting.VirtualChannel;
-import java.io.File;
-import jenkins.MasterToSlaveFileCallable;
-import jenkins.tasks.SimpleBuildStep;
-import mock.MockLoad;
+import edu.umd.cs.findbugs.annotations.NonNull;
 import hudson.Extension;
 import hudson.FilePath;
 import hudson.Launcher;
 import hudson.model.AbstractProject;
+import hudson.model.Run;
+import hudson.model.TaskListener;
+import hudson.remoting.VirtualChannel;
 import hudson.tasks.BuildStepDescriptor;
 import hudson.tasks.Builder;
-import org.apache.commons.io.IOUtils;
-import org.kohsuke.stapler.DataBoundConstructor;
-
-import edu.umd.cs.findbugs.annotations.NonNull;
+import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import jenkins.MasterToSlaveFileCallable;
+import jenkins.tasks.SimpleBuildStep;
+import mock.MockLoad;
+import org.apache.commons.io.IOUtils;
+import org.kohsuke.stapler.DataBoundConstructor;
 
 public class MockLoadBuilder extends Builder implements SimpleBuildStep {
 
@@ -35,15 +34,22 @@ public class MockLoadBuilder extends Builder implements SimpleBuildStep {
     }
 
     @Override
-    public void perform(@NonNull Run<?, ?> run, @NonNull FilePath workspace, @NonNull Launcher launcher, @NonNull TaskListener listener) throws InterruptedException, IOException {
+    public void perform(
+            @NonNull Run<?, ?> run,
+            @NonNull FilePath workspace,
+            @NonNull Launcher launcher,
+            @NonNull TaskListener listener)
+            throws InterruptedException, IOException {
         if (MockProjectFactory.mode) {
             workspace.act(workspace.asCallableWith(new NoFork(averageDuration, listener)));
         } else {
             try (InputStream is = getClass().getResourceAsStream("/mock/MockLoad.class");
-                 OutputStream os = workspace.child("mock/MockLoad.class").write()) {
+                    OutputStream os = workspace.child("mock/MockLoad.class").write()) {
                 IOUtils.copy(is, os);
             }
-            launcher.launch().pwd(workspace).cmds("java", "mock.MockLoad", Long.toString(averageDuration))
+            launcher.launch()
+                    .pwd(workspace)
+                    .cmds("java", "mock.MockLoad", Long.toString(averageDuration))
                     .stdout(listener)
                     .start()
                     .join();
