@@ -42,12 +42,11 @@ public class MatrixMockProjectFactory extends MockProjectFactory {
     }
 
     private MatrixProject createProject(ModifiableTopLevelItemGroup ig, String name) throws IOException {
-        return (MatrixProject) ig.createProject(
-                    Jenkins.get().getDescriptorByType(MatrixProject.DescriptorImpl.class), name, true);
+        return (MatrixProject)
+                ig.createProject(Jenkins.get().getDescriptorByType(MatrixProject.DescriptorImpl.class), name, true);
     }
 
     private AxisList createAxisList() {
         return new AxisList(new TextAxis("X", "1", "2"), new TextAxis("Y", "1", "2"));
     }
-
 }

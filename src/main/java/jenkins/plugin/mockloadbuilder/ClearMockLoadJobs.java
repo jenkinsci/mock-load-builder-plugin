@@ -4,11 +4,10 @@ import hudson.Extension;
 import hudson.cli.CLICommand;
 import hudson.model.Item;
 import hudson.model.TopLevelItem;
+import java.io.IOException;
 import jenkins.model.Jenkins;
 import jenkins.model.ModifiableTopLevelItemGroup;
 import org.kohsuke.args4j.Argument;
-
-import java.io.IOException;
 
 @Extension
 public class ClearMockLoadJobs extends CLICommand {

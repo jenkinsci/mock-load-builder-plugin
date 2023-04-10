@@ -2,12 +2,11 @@ package jenkins.plugin.mockloadbuilder;
 
 import hudson.ExtensionPoint;
 import hudson.model.Job;
-import java.io.IOException;
-
 import hudson.tasks.ArtifactArchiver;
 import hudson.tasks.Fingerprinter;
 import hudson.tasks.LogRotator;
 import hudson.tasks.junit.JUnitResultArchiver;
+import java.io.IOException;
 import jenkins.model.ModifiableTopLevelItemGroup;
 
 public abstract class MockProjectFactory implements ExtensionPoint {
@@ -20,7 +19,8 @@ public abstract class MockProjectFactory implements ExtensionPoint {
         return 1;
     }
 
-    public abstract Job create(ModifiableTopLevelItemGroup ig, String name, Long averageDuration, boolean fastRotate) throws IOException;
+    public abstract Job create(ModifiableTopLevelItemGroup ig, String name, Long averageDuration, boolean fastRotate)
+            throws IOException;
 
     protected ArtifactArchiver createArtifactArchiver() {
         ArtifactArchiver artifactArc = new ArtifactArchiver("mock-artifact-*.txt");

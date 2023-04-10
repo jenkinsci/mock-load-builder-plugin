@@ -3,10 +3,6 @@ package jenkins.plugin.mockloadbuilder;
 import hudson.Extension;
 import hudson.model.FreeStyleProject;
 import hudson.model.Job;
-import hudson.tasks.ArtifactArchiver;
-import hudson.tasks.Fingerprinter;
-import hudson.tasks.LogRotator;
-import hudson.tasks.junit.JUnitResultArchiver;
 import java.io.IOException;
 import jenkins.model.Jenkins;
 import jenkins.model.ModifiableTopLevelItemGroup;
@@ -38,8 +34,7 @@ public class FreeStyleMockProjectFactory extends MockProjectFactory {
     }
 
     private FreeStyleProject createProject(ModifiableTopLevelItemGroup ig, String name) throws IOException {
-        return (FreeStyleProject) ig.createProject(
-                Jenkins.get().getDescriptorByType(FreeStyleProject.DescriptorImpl.class), name, true);
+        return (FreeStyleProject)
+                ig.createProject(Jenkins.get().getDescriptorByType(FreeStyleProject.DescriptorImpl.class), name, true);
     }
-
 }

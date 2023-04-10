@@ -42,11 +42,14 @@ import org.kohsuke.stapler.DataBoundSetter;
 
 public final class WithMockLoadStep extends Step {
 
-    @DataBoundSetter public long averageDuration = 60;
+    @DataBoundSetter
+    public long averageDuration = 60;
 
-    @DataBoundConstructor public WithMockLoadStep() {}
+    @DataBoundConstructor
+    public WithMockLoadStep() {}
 
-    @Override public StepExecution start(StepContext context) throws Exception {
+    @Override
+    public StepExecution start(StepContext context) throws Exception {
         return new Execution(context, averageDuration);
     }
 
@@ -60,7 +63,8 @@ public final class WithMockLoadStep extends Step {
             this.averageDuration = averageDuration;
         }
 
-        @Override public boolean start() throws Exception {
+        @Override
+        public boolean start() throws Exception {
             run(() -> {
                 var tempDir = WorkspaceList.tempDir(getContext().get(FilePath.class));
                 if (tempDir == null) {
@@ -69,44 +73,52 @@ public final class WithMockLoadStep extends Step {
                 tempDir.mkdirs();
                 var classpathDir = tempDir.createTempDir("mock-cp", null);
                 classpathDirPath = classpathDir.getRemote();
-                classpathDir.child("mock/MockLoad.class").copyFrom(WithMockLoadStep.class.getResource("/mock/MockLoad.class"));
+                classpathDir
+                        .child("mock/MockLoad.class")
+                        .copyFrom(WithMockLoadStep.class.getResource("/mock/MockLoad.class"));
                 var command = "java -classpath \"" + classpathDirPath + "\" mock.MockLoad " + averageDuration;
-                getContext().newBodyInvoker().
-                    withContexts(EnvironmentExpander.merge(getContext().get(EnvironmentExpander.class), EnvironmentExpander.constant(Map.of("MOCK_LOAD_COMMAND", command)))).
-                    withCallback(new CleanUp()).
-                    start();
+                getContext()
+                        .newBodyInvoker()
+                        .withContexts(EnvironmentExpander.merge(
+                                getContext().get(EnvironmentExpander.class),
+                                EnvironmentExpander.constant(Map.of("MOCK_LOAD_COMMAND", command))))
+                        .withCallback(new CleanUp())
+                        .start();
             });
             return false;
         }
 
         private class CleanUp extends BodyExecutionCallback.TailCall {
-            @Override protected void finished(StepContext context) throws Exception {
+            @Override
+            protected void finished(StepContext context) throws Exception {
                 run(() -> {
                     context.get(FilePath.class).child(classpathDirPath).deleteRecursive();
                 });
             }
         }
-
     }
 
-    @Extension public static final class DescriptorImpl extends StepDescriptor {
+    @Extension
+    public static final class DescriptorImpl extends StepDescriptor {
 
-        @Override public Set<? extends Class<?>> getRequiredContext() {
+        @Override
+        public Set<? extends Class<?>> getRequiredContext() {
             return Set.of(FilePath.class);
         }
 
-        @Override public String getFunctionName() {
+        @Override
+        public String getFunctionName() {
             return "withMockLoad";
         }
 
-        @Override public boolean takesImplicitBlockArgument() {
+        @Override
+        public boolean takesImplicitBlockArgument() {
             return true;
         }
 
-        @Override public String getDisplayName() {
+        @Override
+        public String getDisplayName() {
             return "Mock load with separate sh command";
         }
-
     }
-
 }
