@@ -57,6 +57,7 @@
     <changelist>999999-SNAPSHOT</changelist>
     <gitHubRepo>jenkinsci/mock-load-builder-plugin</gitHubRepo>
     <jenkins.version>2.361.4</jenkins.version>
+    <spotless.check.skip>false</spotless.check.skip>
     <!-- not for production anyway -->
     <spotbugs.skip>true</spotbugs.skip>
   </properties>
