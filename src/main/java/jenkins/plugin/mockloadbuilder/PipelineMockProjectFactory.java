@@ -25,12 +25,11 @@ public class PipelineMockProjectFactory extends MockProjectFactory {
         project.setDefinition(new CpsFlowDefinition(
                 String.format(
                         "node {%n"
-                                + "  withMockLoad(averageDuration: %d) {%n"
+                                + "  withMockLoad(averageDuration: %d, testFailureIgnore: true) {%n"
                                 + "    sh MOCK_LOAD_COMMAND%n"
                                 + "  }%n"
-                                + "  archiveArtifacts allowEmptyArchive: true, artifacts: 'mock-artifact-*.txt'%n"
-                                + "  fingerprint 'mock-artifact-*.txt'%n"
                                 + "  junit 'mock-junit.xml'%n"
+                                + "  archiveArtifacts artifacts: 'mock-artifact-*.txt', fingerprint: true%n"
                                 + "}",
                         averageDuration == null || averageDuration < 0 ? Long.valueOf(60L) : averageDuration),
                 true));
