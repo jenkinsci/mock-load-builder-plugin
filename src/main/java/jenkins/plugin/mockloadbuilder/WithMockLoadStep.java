@@ -45,22 +45,27 @@ public final class WithMockLoadStep extends Step {
     @DataBoundSetter
     public long averageDuration = 60;
 
+    @DataBoundSetter
+    public boolean testFailureIgnore;
+
     @DataBoundConstructor
     public WithMockLoadStep() {}
 
     @Override
     public StepExecution start(StepContext context) throws Exception {
-        return new Execution(context, averageDuration);
+        return new Execution(context, averageDuration, testFailureIgnore);
     }
 
     private static final class Execution extends GeneralNonBlockingStepExecution {
 
         private final long averageDuration;
+        private final boolean testFailureIgnore;
         private String classpathDirPath;
 
-        Execution(StepContext context, long averageDuration) {
+        Execution(StepContext context, long averageDuration, boolean testFailureIgnore) {
             super(context);
             this.averageDuration = averageDuration;
+            this.testFailureIgnore = testFailureIgnore;
         }
 
         @Override
@@ -76,7 +81,8 @@ public final class WithMockLoadStep extends Step {
                 classpathDir
                         .child("mock/MockLoad.class")
                         .copyFrom(WithMockLoadStep.class.getResource("/mock/MockLoad.class"));
-                var command = "java -classpath \"" + classpathDirPath + "\" mock.MockLoad " + averageDuration;
+                var command = "java " + (testFailureIgnore ? "-Dmaven.test.failure.ignore=true " : "") + "-classpath \""
+                        + classpathDirPath + "\" mock.MockLoad " + averageDuration;
                 getContext()
                         .newBodyInvoker()
                         .withContexts(EnvironmentExpander.merge(

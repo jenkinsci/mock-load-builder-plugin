@@ -28,4 +28,7 @@ THE SOFTWARE.
     <f:entry field="averageDuration" title="${%averageDuration.title}">
         <f:number default="60"/>
     </f:entry>
+    <f:entry field="testFailureIgnore" title="Continue after test failures">
+        <f:checkbox/>
+    </f:entry>
 </j:jelly>

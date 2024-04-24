@@ -24,9 +24,14 @@
 
 package jenkins.plugin.mockloadbuilder;
 
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.in;
+import static org.hamcrest.Matchers.is;
 import static org.junit.Assume.assumeFalse;
 
 import hudson.Functions;
+import hudson.model.Result;
+import java.util.Set;
 import org.jenkinsci.plugins.workflow.cps.CpsFlowDefinition;
 import org.jenkinsci.plugins.workflow.job.WorkflowJob;
 import org.junit.ClassRule;
@@ -50,7 +55,7 @@ public class WithMockLoadStepTest {
             r.createSlave("remote", null, null);
             var p = r.createProject(WorkflowJob.class, "p");
             p.setDefinition(new CpsFlowDefinition(
-                    "node('remote') {\n" + "  withMockLoad(averageDuration: 15) {\n"
+                    "node('remote') {\n" + "  withMockLoad(averageDuration: 15, testFailureIgnore: true) {\n"
                             + "    if (isUnix()) {\n"
                             + "      sh MOCK_LOAD_COMMAND\n"
                             + "    } else {\n"
@@ -58,7 +63,7 @@ public class WithMockLoadStepTest {
                             + "    }\n"
                             + "  }\n"
                             + "  junit 'mock-junit.xml'\n"
-                            + "  archiveArtifacts artifacts: 'mock-artifact-*.txt', allowEmptyArchive: true, fingerprint: true\n"
+                            + "  archiveArtifacts artifacts: 'mock-artifact-*.txt', fingerprint: true\n"
                             + "}",
                     true));
             var b = p.scheduleBuild2(0).waitForStart();
@@ -66,7 +71,8 @@ public class WithMockLoadStepTest {
         });
         rr.then(r -> {
             var b = r.jenkins.getItemByFullName("p", WorkflowJob.class).getBuildByNumber(1);
-            r.waitForCompletion(b); // not asserting success—could be unstable or failed
+            r.waitForCompletion(b);
+            assertThat(b.getResult(), is(in(Set.of(Result.SUCCESS, Result.UNSTABLE))));
             r.assertLogContains("[INFO] Reactor Summary:", b);
         });
     }

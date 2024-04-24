@@ -54,7 +54,7 @@ public class MockLoad {
         out.println("[INFO] ------------------------------------------------------------------------");
         doWork(entropy, duration, out, baseDir);
         String result;
-        if (runTests(baseDir, entropy, out)) {
+        if (runTests(baseDir, entropy, out) || Boolean.getBoolean("maven.test.failure.ignore")) {
             result = "SUCCESS";
             createArtifacts(baseDir, entropy, out);
         } else {
