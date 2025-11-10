@@ -3,7 +3,6 @@ package jenkins.plugin.mockloadbuilder;
 import hudson.matrix.AxisList;
 import hudson.matrix.MatrixProject;
 import hudson.matrix.TextAxis;
-import hudson.model.Job;
 import java.io.IOException;
 import jenkins.model.Jenkins;
 import jenkins.model.ModifiableTopLevelItemGroup;
@@ -22,7 +21,7 @@ public class MatrixMockProjectFactory extends MockProjectFactory {
     }
 
     @Override
-    public Job create(ModifiableTopLevelItemGroup ig, String name, Long averageDuration, boolean fastRotate)
+    public void create(ModifiableTopLevelItemGroup ig, String name, Long averageDuration, boolean fastRotate)
             throws IOException {
         MatrixProject project = createProject(ig, name);
         project.setBuildDiscarder(createBuildDiscarder(fastRotate));
@@ -33,7 +32,6 @@ public class MatrixMockProjectFactory extends MockProjectFactory {
         project.getPublishersList().add(createJunitArchiver());
         project.setAssignedLabel(null);
         project.save();
-        return project;
     }
 
     @Override

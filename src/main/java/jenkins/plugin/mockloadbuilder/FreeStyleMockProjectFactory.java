@@ -2,7 +2,6 @@ package jenkins.plugin.mockloadbuilder;
 
 import hudson.Extension;
 import hudson.model.FreeStyleProject;
-import hudson.model.Job;
 import java.io.IOException;
 import jenkins.model.Jenkins;
 import jenkins.model.ModifiableTopLevelItemGroup;
@@ -15,7 +14,7 @@ public class FreeStyleMockProjectFactory extends MockProjectFactory {
     }
 
     @Override
-    public Job create(ModifiableTopLevelItemGroup ig, String name, Long averageDuration, boolean fastRotate)
+    public void create(ModifiableTopLevelItemGroup ig, String name, Long averageDuration, boolean fastRotate)
             throws IOException {
         FreeStyleProject project = createProject(ig, name);
         project.setBuildDiscarder(createBuildDiscarder(fastRotate));
@@ -25,7 +24,6 @@ public class FreeStyleMockProjectFactory extends MockProjectFactory {
         project.getPublishersList().add(createJunitArchiver());
         project.setAssignedLabel(null);
         project.save();
-        return project;
     }
 
     @Override
