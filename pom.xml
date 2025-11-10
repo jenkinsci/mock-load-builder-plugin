@@ -28,7 +28,7 @@
   <parent>
     <groupId>org.jenkins-ci.plugins</groupId>
     <artifactId>plugin</artifactId>
-    <version>4.88</version>
+    <version>5.28</version>
     <relativePath />
   </parent>
 
@@ -56,7 +56,8 @@
   <properties>
     <changelist>999999-SNAPSHOT</changelist>
     <gitHubRepo>jenkinsci/mock-load-builder-plugin</gitHubRepo>
-    <jenkins.version>2.361.4</jenkins.version>
+    <jenkins.baseline>2.516</jenkins.baseline>
+    <jenkins.version>${jenkins.baseline}.3</jenkins.version>
     <spotless.check.skip>false</spotless.check.skip>
     <!-- not for production anyway -->
     <spotbugs.skip>true</spotbugs.skip>
@@ -66,8 +67,8 @@
     <dependencies>
       <dependency>
         <groupId>io.jenkins.tools.bom</groupId>
-        <artifactId>bom-2.361.x</artifactId>
-        <version>2102.v854b_fec19c92</version>
+        <artifactId>bom-${jenkins.baseline}.x</artifactId>
+        <version>5085.v05cc65a_936d3</version>
         <type>pom</type>
         <scope>import</scope>
       </dependency>
