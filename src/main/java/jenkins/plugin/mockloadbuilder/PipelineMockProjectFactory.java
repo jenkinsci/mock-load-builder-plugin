@@ -1,6 +1,6 @@
 package jenkins.plugin.mockloadbuilder;
 
-import hudson.model.Job;
+import hudson.model.Descriptor;
 import java.io.IOException;
 import jenkins.model.Jenkins;
 import jenkins.model.ModifiableTopLevelItemGroup;
@@ -17,8 +17,8 @@ public class PipelineMockProjectFactory extends MockProjectFactory {
     }
 
     @Override
-    public Job create(ModifiableTopLevelItemGroup ig, String name, Long averageDuration, boolean fastRotate)
-            throws IOException {
+    public void create(ModifiableTopLevelItemGroup ig, String name, Long averageDuration, boolean fastRotate)
+            throws IOException, Descriptor.FormException {
         WorkflowJob project = (WorkflowJob)
                 ig.createProject(Jenkins.get().getDescriptorByType(WorkflowJob.DescriptorImpl.class), name, true);
         project.setBuildDiscarder(createBuildDiscarder(fastRotate));
@@ -34,7 +34,6 @@ public class PipelineMockProjectFactory extends MockProjectFactory {
                         averageDuration == null || averageDuration < 0 ? Long.valueOf(60L) : averageDuration),
                 true));
         project.save();
-        return project;
     }
 
     @Override

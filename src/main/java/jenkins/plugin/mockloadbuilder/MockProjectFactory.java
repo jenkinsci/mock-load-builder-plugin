@@ -1,7 +1,7 @@
 package jenkins.plugin.mockloadbuilder;
 
 import hudson.ExtensionPoint;
-import hudson.model.Job;
+import hudson.model.Descriptor;
 import hudson.tasks.ArtifactArchiver;
 import hudson.tasks.Fingerprinter;
 import hudson.tasks.LogRotator;
@@ -19,8 +19,8 @@ public abstract class MockProjectFactory implements ExtensionPoint {
         return 1;
     }
 
-    public abstract Job create(ModifiableTopLevelItemGroup ig, String name, Long averageDuration, boolean fastRotate)
-            throws IOException;
+    public abstract void create(ModifiableTopLevelItemGroup ig, String name, Long averageDuration, boolean fastRotate)
+            throws IOException, Descriptor.FormException;
 
     protected ArtifactArchiver createArtifactArchiver() {
         ArtifactArchiver artifactArc = new ArtifactArchiver("mock-artifact-*.txt");
