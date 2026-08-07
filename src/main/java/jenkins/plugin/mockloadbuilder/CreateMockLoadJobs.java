@@ -11,7 +11,6 @@ import java.util.List;
 import java.util.Random;
 import jenkins.model.Jenkins;
 import jenkins.model.ModifiableTopLevelItemGroup;
-import org.apache.commons.lang.StringUtils;
 import org.kohsuke.args4j.Argument;
 import org.kohsuke.args4j.Option;
 
@@ -63,7 +62,7 @@ public class CreateMockLoadJobs extends CLICommand {
         int index = 0;
         double multiplier = 1;
         for (int n = 0; n < count; n++) {
-            String paddedIndex = StringUtils.leftPad(Integer.toString(n + 1), 5, '0');
+            String paddedIndex = String.format("%05d", n + 1);
             String name = NAME_PREFIX + paddedIndex;
             if (ig.getItem(name) != null) {
                 continue;
